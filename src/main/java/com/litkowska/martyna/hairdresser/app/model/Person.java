@@ -48,4 +48,14 @@ public class Person{
     public void setEmail(final String email) {
         this.email = email;
     }
+
+    @Override
+    public String toString() {
+        return "Person{" +
+                "id=" + id +
+                ", lastName='" + lastName + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", email='" + email + '\'' +
+                '}';
+    }
 }

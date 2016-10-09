@@ -1,18 +1,22 @@
 package com.litkowska.martyna.hairdresser.app.model;
 
 import javax.persistence.*;
+import java.util.List;
 
 /**
  * Created by Martyna on 21.09.2016.
  */
 @Entity
-public class Hairdresser {
+public class Hairdresser extends Person{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
-    @Column
+    @OneToOne
     private HairdresserLevel hairdresserLevel;
-//    private List<HairdresserTag> hairdresserTagList;
+    @OneToOne
+    private Shift shift;
+    @OneToMany
+    private List<HairdresserTag> hairdresserTagList;
 
     public long getId() {
         return id;
@@ -30,11 +34,29 @@ public class Hairdresser {
         this.hairdresserLevel = hairdresserLevel;
     }
 
-//    public List<HairdresserTag> getHairdresserTagList() {
-//        return hairdresserTagList;
-//    }
+    public Shift getShift() {
+        return shift;
+    }
 
-//    public void setHairdresserTagList(final List<HairdresserTag> hairdresserTagList) {
-//        this.hairdresserTagList = hairdresserTagList;
-//    }
+    public void setShift(Shift shift) {
+        this.shift = shift;
+    }
+
+    public List<HairdresserTag> getHairdresserTagList() {
+        return hairdresserTagList;
+    }
+
+    public void setHairdresserTagList(final List<HairdresserTag> hairdresserTagList) {
+        this.hairdresserTagList = hairdresserTagList;
+    }
+
+    @Override
+    public String toString() {
+        return "Hairdresser{" +
+                "id=" + id +
+                ", hairdresserLevel=" + hairdresserLevel +
+                ", shift=" + shift +
+                ", hairdresserTagList=" + hairdresserTagList +
+                '}';
+    }
 }
