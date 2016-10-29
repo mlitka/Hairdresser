@@ -1,14 +1,15 @@
 package com.litkowska.martyna.hairdresser.app.controller;
 
+import com.litkowska.martyna.hairdresser.app.dto.HairdresserDTO;
 import com.litkowska.martyna.hairdresser.app.model.Hairdresser;
 import com.litkowska.martyna.hairdresser.app.service.HairdresserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by Martyna on 21.09.2016.
@@ -18,9 +19,26 @@ public class HairdresserController {
     @Autowired
     private HairdresserService hairdresserService;
 
-    @RequestMapping("/hairdressers")
+    @RequestMapping(value = "/hairdressers", method = RequestMethod.GET)
+    @CrossOrigin("*")
     public ResponseEntity<?> getAllHairdressers(){
-        List<Hairdresser> clients = (List<Hairdresser>) hairdresserService.findAll();
-        return new ResponseEntity<List<Hairdresser>>(clients, HttpStatus.OK);
+        List<Hairdresser> hairdressers = (List<Hairdresser>) hairdresserService.findAll();
+        List<HairdresserDTO> hairdressersDTO = hairdressers.stream().map(hairdresser -> new HairdresserDTO(hairdresser)).collect(Collectors.toList());
+//        hairdressers.forEach(hairdresser -> hairdressersDTO.add(new HairdresserDTO(hairdresser)));
+        return new ResponseEntity<>(hairdressersDTO, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/hairdresser", method = RequestMethod.POST)
+    @CrossOrigin("*")
+    public ResponseEntity<?> saveHaidresser(final @RequestBody Hairdresser hairdresser){
+        try{
+            Hairdresser savedHairdresser = hairdresserService.saveNewHairdresser(hairdresser);
+            if(savedHairdresser!=null){
+                return new ResponseEntity<Hairdresser>(savedHairdresser, HttpStatus.CREATED);
+            }
+            return new ResponseEntity<String>("could not save hairdresser", HttpStatus.BAD_REQUEST);
+        }catch (RuntimeException e){
+            return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

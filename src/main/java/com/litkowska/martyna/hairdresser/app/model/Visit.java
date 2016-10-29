@@ -1,8 +1,8 @@
 package com.litkowska.martyna.hairdresser.app.model;
 
 import javax.persistence.*;
-import java.sql.Date;
-import java.sql.Time;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 /**
  * Created by Martyna on 21.09.2016.
@@ -15,9 +15,9 @@ public class Visit implements Comparable<Visit>{
     @OneToOne
     private Hairdresser hairdresser;
     @Column
-    private Time time;
+    private LocalTime time;
     @Column
-    private Date date;
+    private LocalDate date;
     @OneToOne
     private HairService hairService;
 
@@ -37,19 +37,19 @@ public class Visit implements Comparable<Visit>{
         this.hairdresser = hairdresser;
     }
 
-    public Time getTime() {
+    public LocalTime getTime() {
         return time;
     }
 
-    public void setTime(Time time) {
+    public void setTime(LocalTime time) {
         this.time = time;
     }
 
-    public Date getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 

@@ -1,6 +1,7 @@
 package com.litkowska.martyna.hairdresser.app.model;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -14,6 +15,7 @@ public class Hairdresser extends Person{
     @OneToOne
     private HairdresserLevel hairdresserLevel;
     @OneToOne
+    @NotNull
     private Shift shift;
     @OneToMany
     private List<HairdresserTag> hairdresserTagList;

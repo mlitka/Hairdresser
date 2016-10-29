@@ -5,7 +5,9 @@ import com.litkowska.martyna.hairdresser.app.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -19,7 +21,8 @@ public class ClientController {
     @Autowired
     private ClientService clientService;
 
-    @RequestMapping("/clients")
+    @RequestMapping(value = "/clients", method = RequestMethod.GET)
+    @CrossOrigin("*")
     public ResponseEntity<?> getAllClients(){
         List<Client> clients = (List<Client>) clientService.findAll();
         return new ResponseEntity<List<Client>>(clients, HttpStatus.OK);

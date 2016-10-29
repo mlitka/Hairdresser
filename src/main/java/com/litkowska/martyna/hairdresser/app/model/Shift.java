@@ -1,7 +1,7 @@
 package com.litkowska.martyna.hairdresser.app.model;
 
 import javax.persistence.*;
-import java.sql.Time;
+import java.time.LocalTime;
 
 /**
  * Created by Martyna on 07.10.2016.
@@ -12,9 +12,9 @@ public class Shift {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     @Column
-    private Time shiftStart;
+    private LocalTime shiftStart;
     @Column
-    private Time shiftEnd;
+    private LocalTime shiftEnd;
 
     public long getId() {
         return id;
@@ -24,19 +24,19 @@ public class Shift {
         this.id = id;
     }
 
-    public Time getShiftStart() {
+    public LocalTime getShiftStart() {
         return shiftStart;
     }
 
-    public void setShiftStart(Time shiftStart) {
+    public void setShiftStart(LocalTime shiftStart) {
         this.shiftStart = shiftStart;
     }
 
-    public Time getShiftEnd() {
+    public LocalTime getShiftEnd() {
         return shiftEnd;
     }
 
-    public void setShiftEnd(Time shiftEnd) {
+    public void setShiftEnd(LocalTime shiftEnd) {
         this.shiftEnd = shiftEnd;
     }
 
