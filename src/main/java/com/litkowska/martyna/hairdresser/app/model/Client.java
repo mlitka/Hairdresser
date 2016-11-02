@@ -1,6 +1,7 @@
 package com.litkowska.martyna.hairdresser.app.model;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,7 +14,7 @@ public class Client extends Person{
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     @OneToMany
-    private List<Visit> visits;
+    private List<Visit> visits = new ArrayList<>();
 
     @Override
     public long getId() {

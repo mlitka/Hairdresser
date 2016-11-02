@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface ClientRepository extends PagingAndSortingRepository<Client, Long> {
-
+    Client findByEmail(final String email);
 }

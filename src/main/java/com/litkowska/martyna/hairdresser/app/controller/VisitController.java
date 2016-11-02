@@ -1,5 +1,6 @@
 package com.litkowska.martyna.hairdresser.app.controller;
 
+import com.litkowska.martyna.hairdresser.app.dto.VisitDTO;
 import com.litkowska.martyna.hairdresser.app.dto.VisitProposalDTO;
 import com.litkowska.martyna.hairdresser.app.model.Visit;
 import com.litkowska.martyna.hairdresser.app.service.VisitService;
@@ -46,4 +47,18 @@ public class VisitController {
         return new ResponseEntity<>(availableVisitsDTO, HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/visit/reserve", method = RequestMethod.POST)
+    @CrossOrigin("*")
+    public ResponseEntity<?> getAllAvailableVisits(final @RequestBody VisitDTO visitDTO){
+        try{
+            Visit savedVisit = visitService.reserveVisit(visitDTO);
+            if(savedVisit!=null){
+                return new ResponseEntity<>(savedVisit, HttpStatus.CREATED);
+            }
+            return new ResponseEntity<>("could not reserve visit", HttpStatus.BAD_REQUEST);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
 }

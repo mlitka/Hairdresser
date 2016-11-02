@@ -2,6 +2,7 @@ package com.litkowska.martyna.hairdresser.app.model;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,7 +19,7 @@ public class Hairdresser extends Person{
     @NotNull
     private Shift shift;
     @OneToMany
-    private List<HairdresserTag> hairdresserTagList;
+    private List<HairdresserTag> hairdresserTagList = new ArrayList<>();
 
     public long getId() {
         return id;

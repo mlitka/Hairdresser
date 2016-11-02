@@ -16,6 +16,8 @@ public class Person{
     private String firstName;
     @Column
     private String email;
+    @Column
+    private String phoneNo;
 
     public long getId() {
         return id;
@@ -49,6 +51,14 @@ public class Person{
         this.email = email;
     }
 
+    public String getPhoneNo() {
+        return phoneNo;
+    }
+
+    public void setPhoneNo(String phoneNo) {
+        this.phoneNo = phoneNo;
+    }
+
     @Override
     public String toString() {
         return "Person{" +
@@ -56,6 +66,7 @@ public class Person{
                 ", lastName='" + lastName + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", email='" + email + '\'' +
+                ", phoneNo='" + phoneNo + '\'' +
                 '}';
     }
 }
