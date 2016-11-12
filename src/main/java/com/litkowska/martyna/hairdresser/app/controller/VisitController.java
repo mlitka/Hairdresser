@@ -4,12 +4,14 @@ import com.litkowska.martyna.hairdresser.app.dto.VisitDTO;
 import com.litkowska.martyna.hairdresser.app.dto.VisitProposalDTO;
 import com.litkowska.martyna.hairdresser.app.model.Visit;
 import com.litkowska.martyna.hairdresser.app.service.VisitService;
+import com.litkowska.martyna.hairdresser.app.util.EmailSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,6 +23,8 @@ import java.util.stream.Collectors;
 public class VisitController {
     @Autowired
     private VisitService visitService;
+    @Autowired
+    private EmailSender emailSender;
 
     @RequestMapping(value = "/visits", method = RequestMethod.GET)
     @CrossOrigin("*")
@@ -53,10 +57,11 @@ public class VisitController {
         try{
             Visit savedVisit = visitService.reserveVisit(visitDTO);
             if(savedVisit!=null){
+                emailSender.sendEmail(savedVisit, visitDTO.getClient());
                 return new ResponseEntity<>(savedVisit, HttpStatus.CREATED);
             }
             return new ResponseEntity<>("could not reserve visit", HttpStatus.BAD_REQUEST);
-        }catch (RuntimeException e){
+        }catch (RuntimeException|MessagingException e){
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
