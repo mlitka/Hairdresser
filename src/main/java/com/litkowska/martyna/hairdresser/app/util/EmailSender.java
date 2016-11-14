@@ -73,7 +73,7 @@ public class EmailSender {
     private String prepareMessage(){
         return "Hello "+this.client.getFirstName()+" "+this.client.getLastName()+"!<br><br>"
                 +"You have just reserved a visit in our salon for "+this.visit.getHairService().getName()+".<br>"
-                +"Our hairdresser, "+this.visit.getHairdresser().getFirstName()+" "+this.visit.getHairdresser().getLastName()
+                +"Our hairdresser, "+this.visit.getHairdresser().getUser().getFirstName()+" "+this.visit.getHairdresser().getUser().getLastName()
                 +" will be waiting for you on "+this.visit.getDate()+" at "+this.visit.getTime()+"."
                 + "<br><br>Best regards, <br>Hair Salon";
     }

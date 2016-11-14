@@ -25,6 +25,9 @@ public class HairdresserController {
         List<Hairdresser> hairdressers = (List<Hairdresser>) hairdresserService.findAll();
         List<HairdresserDTO> hairdressersDTO = hairdressers.stream().map(hairdresser -> new HairdresserDTO(hairdresser)).collect(Collectors.toList());
 //        hairdressers.forEach(hairdresser -> hairdressersDTO.add(new HairdresserDTO(hairdresser)));
+        if(hairdressersDTO.size()==0){
+            return new ResponseEntity<>("no hairdressers found in database", HttpStatus.NOT_FOUND);
+        }
         return new ResponseEntity<>(hairdressersDTO, HttpStatus.OK);
     }
 

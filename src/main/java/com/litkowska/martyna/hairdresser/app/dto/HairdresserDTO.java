@@ -15,8 +15,8 @@ public class HairdresserDTO {
 
     public HairdresserDTO(final Hairdresser hairdresser){
         this.id = hairdresser.getId();
-        this.lastName = hairdresser.getLastName();
-        this.firstName = hairdresser.getFirstName();
+        this.lastName = hairdresser.getUser().getLastName();
+        this.firstName = hairdresser.getUser().getFirstName();
     }
 
     public long getId() {

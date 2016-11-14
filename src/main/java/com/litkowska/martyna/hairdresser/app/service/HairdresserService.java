@@ -2,8 +2,10 @@ package com.litkowska.martyna.hairdresser.app.service;
 
 import com.litkowska.martyna.hairdresser.app.model.Hairdresser;
 import com.litkowska.martyna.hairdresser.app.model.Shift;
+import com.litkowska.martyna.hairdresser.app.model.User;
 import com.litkowska.martyna.hairdresser.app.repository.HaidresserRepository;
 import com.litkowska.martyna.hairdresser.app.repository.ShiftRepository;
+import com.litkowska.martyna.hairdresser.app.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +21,8 @@ public class HairdresserService {
     private HaidresserRepository haidresserRepository;
     @Autowired
     private ShiftRepository shiftRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     public Iterable<Hairdresser> findAll() {
         return haidresserRepository.findAll();
@@ -37,5 +41,10 @@ public class HairdresserService {
         }
         hairdresser.setShift(shift);
         return haidresserRepository.save(hairdresser);
+    }
+
+    public boolean isUserAHairdresser(final String email){
+        User user = userRepository.findByEmail(email);
+        return haidresserRepository.findByUser(user)!=null;
     }
 }

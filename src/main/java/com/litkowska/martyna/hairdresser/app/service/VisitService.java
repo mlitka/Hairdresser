@@ -2,10 +2,7 @@ package com.litkowska.martyna.hairdresser.app.service;
 
 import com.litkowska.martyna.hairdresser.app.dto.VisitDTO;
 import com.litkowska.martyna.hairdresser.app.model.*;
-import com.litkowska.martyna.hairdresser.app.repository.ClientRepository;
-import com.litkowska.martyna.hairdresser.app.repository.HaidresserRepository;
-import com.litkowska.martyna.hairdresser.app.repository.HairServiceRepository;
-import com.litkowska.martyna.hairdresser.app.repository.VisitRepository;
+import com.litkowska.martyna.hairdresser.app.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +26,8 @@ public class VisitService {
     private HairServiceRepository hairServiceRepository;
     @Autowired
     private ClientRepository clientRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     public Iterable<Visit> findAll() {
         return visitRepository.findAll();
@@ -73,6 +72,11 @@ public class VisitService {
         return visitRepository.save(visit);
     }
 
+    public Iterable<Visit> findVisitsByHairdresser(final long hairdresserId){
+        Hairdresser hairdresser = haidresserRepository.findOne(hairdresserId);
+        return visitRepository.findByHairdresser(hairdresser);
+    }
+
     private boolean isTimeColliding(final List<Visit> visitList, final LocalTime newVisitTime, final int duration) {
         boolean isCollliding = false;
         for (Visit visit : visitList) {
@@ -89,14 +93,19 @@ public class VisitService {
     }
 
     private Client saveClient(final VisitDTO visitDTO){
-        Client client = clientRepository.findByEmail(visitDTO.getClient().getEmail());
-        if(client==null){
+        User user = userRepository.findByEmail(visitDTO.getClient().getEmail());
+        Client client;
+        if(user==null){
+            user = new User();
+            user.setEmail(visitDTO.getClient().getEmail());
+            user.setLastName(visitDTO.getClient().getLastName());
+            user.setFirstName(visitDTO.getClient().getFirstName());
+            user.setPhoneNo(visitDTO.getClient().getPhoneNo());
             client = new Client();
-            client.setEmail(visitDTO.getClient().getEmail());
-            client.setLastName(visitDTO.getClient().getLastName());
-            client.setFirstName(visitDTO.getClient().getFirstName());
-            client.setPhoneNo(visitDTO.getClient().getPhoneNo());
+            client.setUser(user);
             clientRepository.save(client);
+        } else{
+            client = clientRepository.findByUser(user);
         }
         return client;
     }

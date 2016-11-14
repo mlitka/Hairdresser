@@ -29,8 +29,29 @@ public class VisitController {
     @RequestMapping(value = "/visits", method = RequestMethod.GET)
     @CrossOrigin("*")
     public ResponseEntity<?> getAllVisits() {
-        List<Visit> visits = (List<Visit>) visitService.findAll();
-        return new ResponseEntity<List<Visit>>(visits, HttpStatus.OK);
+        try {
+            List<Visit> visits = (List<Visit>) visitService.findAll();
+            if(visits.size()==0){
+                return new ResponseEntity<>("no visits found in database", HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>(visits, HttpStatus.OK);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @RequestMapping(value = "/visits/{hairdresser}", method = RequestMethod.GET)
+    @CrossOrigin("*")
+    public ResponseEntity<?> getAllHaidresserVisits(@PathVariable("hairdresser") long hairdresserId) {
+        try {
+            List<Visit> visits = (List<Visit>) visitService.findVisitsByHairdresser(hairdresserId);
+            if(visits.size()==0){
+                return new ResponseEntity<>("no visits for hairdresser found in database", HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>(visits, HttpStatus.OK);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @RequestMapping(value = "/visits/{hairdresser}/available/{service}", method = RequestMethod.GET)
@@ -43,12 +64,19 @@ public class VisitController {
         System.out.println("\n\n" + hairdresserId);
         System.out.println("\n\n" + date);
         System.out.println("\n\n" + hairServiceId);
-        List<Visit> availableVisits = (List<Visit>) visitService.findAvailableVisits(
-                hairdresserId,
-                date,
-                hairServiceId);
-        List<VisitProposalDTO> availableVisitsDTO = availableVisits.stream().map(visit -> new VisitProposalDTO(visit)).collect(Collectors.toList());
-        return new ResponseEntity<>(availableVisitsDTO, HttpStatus.OK);
+        try {
+            List<Visit> availableVisits = (List<Visit>) visitService.findAvailableVisits(
+                    hairdresserId,
+                    date,
+                    hairServiceId);
+            List<VisitProposalDTO> availableVisitsDTO = availableVisits.stream().map(visit -> new VisitProposalDTO(visit)).collect(Collectors.toList());
+            if (availableVisits.size() == 0) {
+                return new ResponseEntity<>("no available visits for this parameters", HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>(availableVisitsDTO, HttpStatus.OK);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @RequestMapping(value = "/visit/reserve", method = RequestMethod.POST)

@@ -1,11 +1,14 @@
+/*
 package com.litkowska.martyna.hairdresser.app.model;
 
 import javax.persistence.*;
 
+*/
 /**
  * Created by Martyna on 21.09.2016.
- */
-@Entity
+ *//*
+
+//@Entity
 public class HairdresserTag {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -37,3 +40,4 @@ public class HairdresserTag {
                 '}';
     }
 }
+*/

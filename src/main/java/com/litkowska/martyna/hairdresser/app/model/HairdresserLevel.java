@@ -1,10 +1,13 @@
+/*
 package com.litkowska.martyna.hairdresser.app.model;
 
 import javax.persistence.*;
 
+*/
 /**
  * Created by Martyna on 26.09.2016.
- */
+ *//*
+
 @Entity
 public class HairdresserLevel {
     @Id
@@ -37,3 +40,4 @@ public class HairdresserLevel {
                 '}';
     }
 }
+*/

@@ -23,7 +23,14 @@ public class HairServiceController {
     @RequestMapping(value = "/services", method = RequestMethod.GET)
     @CrossOrigin("*")
     public ResponseEntity<?> getAllHairServices(){
-        List<HairService> hairServices = (List<HairService>) hairServiceService.findAll();
-        return new ResponseEntity<List<HairService>>(hairServices, HttpStatus.OK);
+        try {
+            List<HairService> hairServices = (List<HairService>) hairServiceService.findAll();
+            if(hairServices.size()==0){
+                return new ResponseEntity<>("no hair services found in database", HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>(hairServices, HttpStatus.OK);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 }

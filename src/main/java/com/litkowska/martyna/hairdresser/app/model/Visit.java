@@ -20,6 +20,8 @@ public class Visit implements Comparable<Visit>{
     private LocalDate date;
     @OneToOne
     private HairService hairService;
+    @ManyToOne
+    private User user;
 
     public long getId() {
         return id;
@@ -61,6 +63,14 @@ public class Visit implements Comparable<Visit>{
         this.hairService = hairService;
     }
 
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     @Override
     public int compareTo(final Visit otherVisit) {
         return this.time.compareTo(otherVisit.getTime());
@@ -74,6 +84,7 @@ public class Visit implements Comparable<Visit>{
                 ", time=" + time +
                 ", date=" + date +
                 ", hairService=" + hairService +
+                ", client=" + user.getEmail() +
                 '}';
     }
 }
