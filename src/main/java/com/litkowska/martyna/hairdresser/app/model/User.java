@@ -26,7 +26,9 @@ public class User implements UserDetails{
     @Column
     private String firstName;
     @Column(unique = true)
+    @NotNull
     private String email;
+    @Column(unique = true)
     private String username;
     @Column
     private String phoneNo;

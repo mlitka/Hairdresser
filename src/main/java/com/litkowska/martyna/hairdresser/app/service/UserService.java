@@ -98,8 +98,12 @@ public class UserService implements UserDetailsService {
     }
 
     private boolean checkUniqueConstraints(final User user) {
-        User existingEmail = userRepository.findByEmail(user.getEmail());
-        return existingEmail == null;
+        User existingUser = userRepository.findByUsername(user.getUsername());
+        return existingUser == null;
+    }
+
+    public boolean checkNotNullConstraints(final User user){
+        return user.getEmail()!=null && user.getPassword()!=null;
     }
 
     /**
@@ -123,6 +127,10 @@ public class UserService implements UserDetailsService {
 
     public Boolean isAuthorized(long id) {
         return getCurrentLoggedUser().getId() == id;
+    }
+
+    public User getUserByUsernameAndPassword(final String username, final String password){
+        return userRepository.findByUsernameAndPassword(username, password);
     }
 
 }
