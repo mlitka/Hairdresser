@@ -15,8 +15,10 @@ public class Client{
     private long id;
     @OneToOne
     private User user;
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "client", fetch = FetchType.LAZY)
     private List<Visit> visits = new ArrayList<>();
+    @OneToMany(mappedBy = "client", fetch = FetchType.LAZY)
+    private List<Opinion> opinions = new ArrayList<>();
 
     public long getId() {
         return id;
@@ -40,6 +42,14 @@ public class Client{
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public List<Opinion> getOpinions() {
+        return opinions;
+    }
+
+    public void setOpinions(List<Opinion> opinions) {
+        this.opinions = opinions;
     }
 
     @Override

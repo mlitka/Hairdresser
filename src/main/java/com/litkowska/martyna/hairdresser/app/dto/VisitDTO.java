@@ -4,12 +4,20 @@ package com.litkowska.martyna.hairdresser.app.dto;
  * Created by Martyna on 01.11.2016.
  */
 public class VisitDTO {
+    private long visitId;
     private ClientDTO client;
     private String date;
     private long hairServiceId;
     private String time;
     private long hairdresserId;
 
+    public long getVisitId() {
+        return visitId;
+    }
+
+    public void setVisitId(long visitId) {
+        this.visitId = visitId;
+    }
 
     public ClientDTO getClient() {
         return client;

@@ -1,23 +1,17 @@
 package com.litkowska.martyna.hairdresser.app.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+import com.litkowska.martyna.hairdresser.app.security.models.AuthRole;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * Created by Martyna on 26.09.2016.
  */
 @Entity
 @Table(name = "Users")
-public class User implements UserDetails{
+public class User{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
@@ -27,22 +21,21 @@ public class User implements UserDetails{
     private String firstName;
     @Column(unique = true)
     @NotNull
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String email;
     @Column(unique = true)
     private String username;
     @Column
     private String phoneNo;
-
+    @Column
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @NotNull
     private String password;
-
-    @JsonIgnore
+    @Column
     @NotNull
-    private SimpleGrantedAuthority role;
+    private AuthRole role;
 
     public User() {
-        role = new SimpleGrantedAuthority("ROLE_USER");
+        role = AuthRole.USER;
     }
 
     public long getId() {
@@ -94,11 +87,11 @@ public class User implements UserDetails{
         this.username = username;
     }
 
-    public SimpleGrantedAuthority getRole() {
+    public AuthRole getRole() {
         return role;
     }
 
-    public void setRole(SimpleGrantedAuthority role) {
+    public void setRole(AuthRole role) {
         this.role = role;
     }
 
@@ -113,41 +106,22 @@ public class User implements UserDetails{
                 '}';
     }
 
-    @JsonIgnore
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(role);
-        return authorities;
-    }
-
-    @Override
     public String getPassword() {
         return password;
     }
 
-    @Override
     public String getUsername() {
         return username;
     }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
+    public boolean checkNotNull(){
+        return email!=null && !email.isEmpty()
+                && lastName!=null && !lastName.isEmpty()
+                && firstName!=null && !firstName.isEmpty()
+                && phoneNo!=null && !phoneNo.isEmpty();
     }
 
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
+    public boolean checkPassword(){
+        return password!=null && !password.isEmpty();
     }
 }
