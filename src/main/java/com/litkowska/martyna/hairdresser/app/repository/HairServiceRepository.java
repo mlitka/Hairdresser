@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface HairServiceRepository extends PagingAndSortingRepository<HairService, Long> {
+    Iterable<HairService> findByIsHidden(final boolean isHidden);
 }

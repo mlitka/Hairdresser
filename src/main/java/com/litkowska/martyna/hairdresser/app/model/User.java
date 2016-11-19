@@ -19,7 +19,7 @@ public class User{
     private String lastName;
     @Column
     private String firstName;
-    @Column(unique = true)
+    @Column
     @NotNull
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String email;

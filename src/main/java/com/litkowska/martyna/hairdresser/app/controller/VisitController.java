@@ -108,13 +108,14 @@ public class VisitController {
         }
     }
 
-    @RequestMapping(value = "/visit/reserve", method = RequestMethod.POST)
+    @RequestMapping(value = "/visits/reserve", method = RequestMethod.POST)
     @CrossOrigin("*")
     public ResponseEntity<?> getAllAvailableVisits(final @RequestBody VisitDTO visitDTO) {
         try {
             Visit savedVisit = visitService.reserveVisit(visitDTO);
             if (savedVisit != null) {
-                emailSender.sendEmail(savedVisit, visitDTO.getClient());
+                emailSender.setVisit(savedVisit);
+                emailSender.sendEmailReservation();
                 return new ResponseEntity<>(savedVisit, HttpStatus.CREATED);
             }
             return new ResponseEntity<>("could not reserve visit", HttpStatus.BAD_REQUEST);
@@ -123,19 +124,22 @@ public class VisitController {
         }
     }
 
-    @RequestMapping(value = "visit/cancel/{visitId}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "visits/cancel/{visitId}", method = RequestMethod.DELETE)
     public ResponseEntity<?> cancelVisit(@PathVariable("visitId") final long visitId) {
         try {
             User user = userService.getCurrentLoggedUser();
             if (user.getRole() == AuthRole.ADMIN || checkClientCancel(user, visitId)
                     || checkHairdresserCancel(user, visitId)) {
+                Visit visit = visitService.findOne(visitId);
+                emailSender.setVisit(visit);
                 visitService.cancelVisit(visitId);
+                emailSender.sendEmailCancelReservation();
                 return new ResponseEntity<>("the visit: " + visitId + " has been canceled", HttpStatus.OK);
 
             }
             return new ResponseEntity<>("could not cancel visit: " + visitId, HttpStatus.BAD_REQUEST);
 
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | MessagingException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }

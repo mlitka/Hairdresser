@@ -34,6 +34,10 @@ public class VisitService {
         return visitRepository.findAll();
     }
 
+    public Visit findOne(final long visitId){
+        return visitRepository.findOne(visitId);
+    }
+
     public Iterable<Visit> findAvailableVisits(final long hairdresserId, final LocalDate date, final long hairServiceId) {
 //        System.out.println("\n\nDATE: " + date);
         Hairdresser hairdresser = haidresserRepository.findOne(hairdresserId);

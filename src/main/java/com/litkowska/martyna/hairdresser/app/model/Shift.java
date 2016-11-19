@@ -1,6 +1,7 @@
 package com.litkowska.martyna.hairdresser.app.model;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.time.LocalTime;
 
 /**
@@ -12,8 +13,10 @@ public class Shift {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     @Column
+    @NotNull
     private LocalTime shiftStart;
     @Column
+    @NotNull
     private LocalTime shiftEnd;
 
     public long getId() {

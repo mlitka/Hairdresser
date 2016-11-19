@@ -1,7 +1,6 @@
 package com.litkowska.martyna.hairdresser.app.util;
 
 import com.litkowska.martyna.hairdresser.app.configuration.EmailConfiguration;
-import com.litkowska.martyna.hairdresser.app.dto.ClientDTO;
 import com.litkowska.martyna.hairdresser.app.model.Visit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,15 +24,24 @@ public class EmailSender {
     private EmailConfiguration emailConfiguration;
 
     private Visit visit;
-    private ClientDTO client;
+    private String emailBody;
 
     static Properties mailServerProperties;
     static Session getMailSession;
     static MimeMessage generateMailMessage;
 
-    public void sendEmail(final Visit visit, final ClientDTO client) throws AddressException, MessagingException {
+    public void setVisit(final Visit visit){
         this.visit = visit;
-        this.client = client;
+    }
+
+    public void sendEmailReservation() throws AddressException, MessagingException {
+        prepareMessageReservation();
+        generateAndSendEmail();
+        System.out.println("\n\n ===> Your Java Program has just sent an Email successfully. Check your email..");
+    }
+
+    public void sendEmailCancelReservation() throws AddressException, MessagingException {
+        prepareMessageReservationCanceled();
         generateAndSendEmail();
         System.out.println("\n\n ===> Your Java Program has just sent an Email successfully. Check your email..");
     }
@@ -52,10 +60,10 @@ public class EmailSender {
         System.out.println("\n\n 2nd ===> get Mail Session..");
         getMailSession = Session.getDefaultInstance(mailServerProperties, null);
         generateMailMessage = new MimeMessage(getMailSession);
-        generateMailMessage.addRecipient(Message.RecipientType.TO, new InternetAddress("m_litkow@vp.pl"));
+        generateMailMessage.addRecipient(Message.RecipientType.TO, new InternetAddress(visit.getClient().getUser().getEmail()));
 //        generateMailMessage.addRecipient(Message.RecipientType.CC, new InternetAddress("test2@crunchify.com"));
         generateMailMessage.setSubject("HAIR SALON VISIT");
-        String emailBody = "Test email by EmLitka JavaMail API example. " + "<br><br> Regards, <br>M L ;)";
+//        String emailBody = "Test email by EmLitka JavaMail API example. " + "<br><br> Regards, <br>M L ;)";
         generateMailMessage.setContent(emailBody, "text/html");
         System.out.println("Mail Session has been created successfully..");
 
@@ -70,11 +78,19 @@ public class EmailSender {
         transport.close();
     }
 
-    private String prepareMessage(){
-        return "Hello "+this.client.getFirstName()+" "+this.client.getLastName()+"!<br><br>"
+    private void prepareMessageReservation(){
+        emailBody = "Hello "+this.visit.getClient().getUser().getFirstName()+" "+this.visit.getClient().getUser().getLastName()+"!<br><br>"
                 +"You have just reserved a visit in our salon for "+this.visit.getHairService().getName()+".<br>"
                 +"Our hairdresser, "+this.visit.getHairdresser().getUser().getFirstName()+" "+this.visit.getHairdresser().getUser().getLastName()
                 +" will be waiting for you on "+this.visit.getDate()+" at "+this.visit.getTime()+"."
+                + "<br><br>Best regards, <br>Hair Salon";
+    }
+
+    private void prepareMessageReservationCanceled(){
+        emailBody = "Hello "+this.visit.getClient().getUser().getFirstName()+" "+this.visit.getClient().getUser().getLastName()+"!<br><br>"
+                +"Your visit in our salon for "+this.visit.getHairService().getName()
+                +" to our hairdresser "+this.visit.getHairdresser().getUser().getFirstName()+" "+this.visit.getHairdresser().getUser().getLastName()
+                +" on "+this.visit.getDate()+" at "+this.visit.getTime()+" has been canceled."
                 + "<br><br>Best regards, <br>Hair Salon";
     }
 }

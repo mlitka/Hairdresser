@@ -12,8 +12,9 @@ public class Hairdresser{
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     @OneToOne
+    @NotNull
     private User user;
-    @OneToOne
+    @ManyToOne
     @NotNull
     private Shift shift;
 
