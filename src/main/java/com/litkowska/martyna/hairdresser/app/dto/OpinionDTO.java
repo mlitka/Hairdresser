@@ -1,6 +1,5 @@
 package com.litkowska.martyna.hairdresser.app.dto;
 
-import javax.persistence.Lob;
 import java.time.LocalDateTime;
 
 /**
@@ -9,7 +8,7 @@ import java.time.LocalDateTime;
 public class OpinionDTO {
     private long opinionId;
     private long clientID = -1;
-    private Lob text;
+    private String text;
     private int rate = -1;
     private LocalDateTime dateTime;
 
@@ -29,11 +28,11 @@ public class OpinionDTO {
         this.clientID = clientID;
     }
 
-    public Lob getText() {
+    public String getText() {
         return text;
     }
 
-    public void setText(Lob text) {
+    public void setText(String text) {
         this.text = text;
     }
 

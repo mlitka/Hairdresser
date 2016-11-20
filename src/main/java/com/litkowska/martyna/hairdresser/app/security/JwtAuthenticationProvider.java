@@ -48,7 +48,7 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
             throw new JwtTokenInvalidException("Token is invalid");
         }
 
-        List<GrantedAuthority> authorityList = AuthorityUtils.commaSeparatedStringToAuthorityList(user.getRole());
+        List<GrantedAuthority> authorityList = AuthorityUtils.commaSeparatedStringToAuthorityList(user.getRole().toString());
 
         return new AuthenticatedUser(user.getUserId(), token, authorityList);
 

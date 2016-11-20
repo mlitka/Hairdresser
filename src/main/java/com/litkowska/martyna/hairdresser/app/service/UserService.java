@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,8 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private PasswordEncoder encoder;
 
     public User loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username);
@@ -38,8 +41,8 @@ public class UserService {
         return null;
     }
 
-    public User saveWithoutRegistering(final User user){
-        if(user.checkNotNull()){
+    public User saveWithoutRegistering(final User user) {
+        if (user.checkNotNull()) {
             return userRepository.save(user);
         }
         return null;
@@ -74,7 +77,7 @@ public class UserService {
     }
 
     private boolean checkUniqueConstraints(final User user) {
-        User existingUser = userRepository.findByUsername(user.getUsername());
+        User existingUser = userRepository.findByUsername(user.getEmail());
         return existingUser == null;
     }
 
@@ -85,21 +88,31 @@ public class UserService {
 
     public User getCurrentLoggedUser() {
         AuthenticatedUser authUser = getAuthLoggedUser();
-        return findByUsername(authUser.getUsername());
+        if (authUser != null) {
+            return findByUsername(authUser.getUsername());
+        }
+        return null;
     }
+
     public Boolean isAuthorized(final String username) {
         return getCurrentLoggedUser().getUsername() == username;
     }
 
-    public User getUserByUsernameAndPassword(final String username, final String password){
-        return userRepository.findByUsernameAndPassword(username, password);
+    public User getUserByUsernameAndPassword(final String username, final String password) {
+        User user = userRepository.findByUsername(username);
+        System.out.println(user);
+        if(encoder.matches(password, user.getPassword())){
+            System.out.println("pass ok");
+            return user;
+        }
+        return null;
     }
 
-    public boolean checkLoginAttributes(final String username, final String password){
-        return username!=null && !username.isEmpty() && password!=null && !password.isEmpty();
+    public boolean checkLoginAttributes(final String username, final String password) {
+        return username != null && !username.isEmpty() && password != null && !password.isEmpty();
     }
 
-    public User findByUsername(final String username){
+    public User findByUsername(final String username) {
         return userRepository.findByUsername(username);
     }
 

@@ -1,6 +1,7 @@
 package com.litkowska.martyna.hairdresser.app.security.utilities;
 
 
+import com.litkowska.martyna.hairdresser.app.security.models.AuthRole;
 import com.litkowska.martyna.hairdresser.app.security.models.JwtUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -17,7 +18,7 @@ public class JwtToken {
 
     public String encode(JwtUser user) {
         Claims claims = Jwts.claims().setSubject(user.getUserId());
-        claims.put("role", user.getRole());
+        claims.put("role", user.getRole().toString());
         return Jwts.builder().setClaims(claims)
                 .signWith(SignatureAlgorithm.HS512, secret).compact();
     }
@@ -32,7 +33,7 @@ public class JwtToken {
 
             user = new JwtUser();
             user.setUserId(body.getSubject());
-            user.setRole((String) body.get("role"));
+            user.setRole(AuthRole.valueOf((String)body.get("role")));
         } catch (JwtException e) {
 
             e.printStackTrace();

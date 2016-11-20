@@ -125,6 +125,7 @@ public class VisitController {
     }
 
     @RequestMapping(value = "visits/cancel/{visitId}", method = RequestMethod.DELETE)
+    @CrossOrigin("*")
     public ResponseEntity<?> cancelVisit(@PathVariable("visitId") final long visitId) {
         try {
             User user = userService.getCurrentLoggedUser();

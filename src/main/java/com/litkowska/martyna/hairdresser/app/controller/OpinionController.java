@@ -57,7 +57,7 @@ public class OpinionController {
      * Get returning given number of the best opinions from database
      * @return
      */
-    @RequestMapping(value = "/opinions/{count}", method = RequestMethod.GET)
+    @RequestMapping(value = "/rest/opinions/{count}", method = RequestMethod.GET)
     @CrossOrigin("*")
     public ResponseEntity<?> getAllOpinionsCount(@PathVariable("count") final int count){
         try{

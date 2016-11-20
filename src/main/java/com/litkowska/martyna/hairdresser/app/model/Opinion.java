@@ -12,12 +12,12 @@ public class Opinion implements Comparable<Opinion>{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
-    @OneToOne
+    @ManyToOne
     @NotNull
     private Client client;
     @Column
     @NotNull
-    private Lob opinionText;
+    private String opinionText;
     @Column
     @NotNull
     private int rate;
@@ -41,11 +41,11 @@ public class Opinion implements Comparable<Opinion>{
         this.client = client;
     }
 
-    public Lob getOpinionText() {
+    public String getOpinionText() {
         return opinionText;
     }
 
-    public void setOpinionText(Lob opinionText) {
+    public void setOpinionText(String opinionText) {
         this.opinionText = opinionText;
     }
 

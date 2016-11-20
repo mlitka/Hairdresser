@@ -60,7 +60,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 // All urls must be authenticated (filter for token always fires (/**)
                 .authorizeRequests()
-                .antMatchers("/rest/**").permitAll()
+                .antMatchers("/rest/**", "/user/**").permitAll()
 //                .antMatchers("/rest/refresh").authenticated()
 //                .antMatchers("/rest/**").authenticated()
                 .anyRequest().authenticated()

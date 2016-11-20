@@ -25,7 +25,7 @@ public class HairdresserController {
     @Autowired
     private UserService userService;
 
-    @RequestMapping(value = "/hairdressers", method = RequestMethod.GET)
+    @RequestMapping(value = "/rest/hairdressers", method = RequestMethod.GET)
     @CrossOrigin("*")
     public ResponseEntity<?> getAllHairdressers(){
         List<Hairdresser> hairdressers = (List<Hairdresser>) hairdresserService.findAll();
@@ -56,7 +56,7 @@ public class HairdresserController {
      * @param upgradeHairdresserDTO
      * @return
      */
-    @RequestMapping(value = "/hairdresser", method = RequestMethod.POST)
+    @RequestMapping(value = "/hairdresser/upgrade", method = RequestMethod.POST)
     @CrossOrigin("*")
     public ResponseEntity<?> addHaidresserUsername(@RequestBody UpgradeHairdresserDTO upgradeHairdresserDTO){
         try{

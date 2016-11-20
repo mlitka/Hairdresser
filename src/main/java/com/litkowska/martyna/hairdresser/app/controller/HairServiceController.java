@@ -40,7 +40,7 @@ public class HairServiceController {
         }
     }
 
-    @RequestMapping(value = "/services/available", method = RequestMethod.GET)
+    @RequestMapping(value = "/rest/services/available", method = RequestMethod.GET)
     @CrossOrigin("*")
     public ResponseEntity<?> getAllNotHiddenHairServices(){
         try {

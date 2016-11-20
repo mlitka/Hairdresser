@@ -32,6 +32,7 @@ public class User{
     private String password;
     @Column
     @NotNull
+    @Enumerated(EnumType.STRING)
     private AuthRole role;
 
     public User() {
@@ -117,8 +118,7 @@ public class User{
     public boolean checkNotNull(){
         return email!=null && !email.isEmpty()
                 && lastName!=null && !lastName.isEmpty()
-                && firstName!=null && !firstName.isEmpty()
-                && phoneNo!=null && !phoneNo.isEmpty();
+                && firstName!=null && !firstName.isEmpty();
     }
 
     public boolean checkPassword(){
