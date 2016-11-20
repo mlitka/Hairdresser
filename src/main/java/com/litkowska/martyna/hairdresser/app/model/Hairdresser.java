@@ -2,24 +2,21 @@ package com.litkowska.martyna.hairdresser.app.model;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Martyna on 21.09.2016.
  */
 @Entity
-public class Hairdresser extends Person{
+public class Hairdresser{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     @OneToOne
-    private HairdresserLevel hairdresserLevel;
-    @OneToOne
+    @NotNull
+    private User user;
+    @ManyToOne
     @NotNull
     private Shift shift;
-    @OneToMany
-    private List<HairdresserTag> hairdresserTagList = new ArrayList<>();
 
     public long getId() {
         return id;
@@ -27,14 +24,6 @@ public class Hairdresser extends Person{
 
     public void setId(final long id) {
         this.id = id;
-    }
-
-    public HairdresserLevel getHairdresserLevel() {
-        return hairdresserLevel;
-    }
-
-    public void setHairdresserLevel(final HairdresserLevel hairdresserLevel) {
-        this.hairdresserLevel = hairdresserLevel;
     }
 
     public Shift getShift() {
@@ -45,21 +34,20 @@ public class Hairdresser extends Person{
         this.shift = shift;
     }
 
-    public List<HairdresserTag> getHairdresserTagList() {
-        return hairdresserTagList;
+    public User getUser() {
+        return user;
     }
 
-    public void setHairdresserTagList(final List<HairdresserTag> hairdresserTagList) {
-        this.hairdresserTagList = hairdresserTagList;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override
     public String toString() {
         return "Hairdresser{" +
                 "id=" + id +
-                ", hairdresserLevel=" + hairdresserLevel +
                 ", shift=" + shift +
-                ", hairdresserTagList=" + hairdresserTagList +
+                ", user=" + user.getEmail() +
                 '}';
     }
 }

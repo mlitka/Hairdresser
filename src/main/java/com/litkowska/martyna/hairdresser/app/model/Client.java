@@ -8,20 +8,22 @@ import java.util.List;
  * Created by Martyna on 21.09.2016.
  */
 @Entity
-public class Client extends Person{
+public class Client{
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
-    @OneToMany
+    @OneToOne
+    private User user;
+    @OneToMany(mappedBy = "client", fetch = FetchType.LAZY)
     private List<Visit> visits = new ArrayList<>();
+    @OneToMany(mappedBy = "client", fetch = FetchType.LAZY)
+    private List<Opinion> opinions = new ArrayList<>();
 
-    @Override
     public long getId() {
         return id;
     }
 
-    @Override
     public void setId(final long id) {
         this.id = id;
     }
@@ -34,11 +36,28 @@ public class Client extends Person{
         this.visits = visits;
     }
 
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public List<Opinion> getOpinions() {
+        return opinions;
+    }
+
+    public void setOpinions(List<Opinion> opinions) {
+        this.opinions = opinions;
+    }
+
     @Override
     public String toString() {
         return "Client{" +
                 "id=" + id +
                 ", visits=" + visits +
+                ", user=" + user.getEmail() +
                 '}';
     }
 }

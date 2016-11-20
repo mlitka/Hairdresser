@@ -1,6 +1,7 @@
 package com.litkowska.martyna.hairdresser.app.repository;
 
 import com.litkowska.martyna.hairdresser.app.model.Client;
+import com.litkowska.martyna.hairdresser.app.model.User;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
@@ -9,5 +10,5 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface ClientRepository extends PagingAndSortingRepository<Client, Long> {
-    Client findByEmail(final String email);
+    Client findByUser(final User user);
 }

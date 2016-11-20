@@ -9,14 +9,15 @@ public class HairdresserDTO {
     private long id;
     private String lastName;
     private String firstName;
+    private String email;
 
     public HairdresserDTO() {
     }
 
     public HairdresserDTO(final Hairdresser hairdresser){
         this.id = hairdresser.getId();
-        this.lastName = hairdresser.getLastName();
-        this.firstName = hairdresser.getFirstName();
+        this.lastName = hairdresser.getUser().getLastName();
+        this.firstName = hairdresser.getUser().getFirstName();
     }
 
     public long getId() {
@@ -41,5 +42,13 @@ public class HairdresserDTO {
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

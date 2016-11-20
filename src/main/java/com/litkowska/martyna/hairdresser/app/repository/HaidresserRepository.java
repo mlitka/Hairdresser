@@ -1,6 +1,7 @@
 package com.litkowska.martyna.hairdresser.app.repository;
 
 import com.litkowska.martyna.hairdresser.app.model.Hairdresser;
+import com.litkowska.martyna.hairdresser.app.model.User;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
@@ -9,4 +10,5 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface HaidresserRepository extends PagingAndSortingRepository<Hairdresser, Long> {
+    Hairdresser findByUser(final User user);
 }

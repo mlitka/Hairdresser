@@ -2,8 +2,12 @@ package com.litkowska.martyna.hairdresser.app.service;
 
 import com.litkowska.martyna.hairdresser.app.model.Hairdresser;
 import com.litkowska.martyna.hairdresser.app.model.Shift;
+import com.litkowska.martyna.hairdresser.app.model.User;
 import com.litkowska.martyna.hairdresser.app.repository.HaidresserRepository;
 import com.litkowska.martyna.hairdresser.app.repository.ShiftRepository;
+import com.litkowska.martyna.hairdresser.app.repository.UpgradeHairdresserDTO;
+import com.litkowska.martyna.hairdresser.app.repository.UserRepository;
+import com.litkowska.martyna.hairdresser.app.security.models.AuthRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +23,12 @@ public class HairdresserService {
     private HaidresserRepository haidresserRepository;
     @Autowired
     private ShiftRepository shiftRepository;
+    @Autowired
+    private ShiftService shiftService;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private UserService userService;
 
     public Iterable<Hairdresser> findAll() {
         return haidresserRepository.findAll();
@@ -26,16 +36,56 @@ public class HairdresserService {
 
     @Transactional
     public Hairdresser saveNewHairdresser(final Hairdresser hairdresser) {
-        LocalTime shiftStart = LocalTime.of(8, 0);
-        LocalTime shiftEnd = LocalTime.of(18, 0);
-        Shift shift = shiftRepository.findByShiftStartAndShiftEnd(shiftStart, shiftEnd);
-        if (shift == null) {
-            shift = new Shift();
-            shift.setShiftStart(LocalTime.of(8, 0));
-            shift.setShiftEnd(LocalTime.of(18, 0));
-            shiftRepository.save(shift);
+        if(checkNotNull(hairdresser)){
+            hairdresser.getUser().setRole(AuthRole.HAIRDRESSER);
+            userService.save(hairdresser.getUser());
+            Shift shift = shiftRepository.findByShiftStartAndShiftEnd(hairdresser.getShift().getShiftStart(),
+                    hairdresser.getShift().getShiftEnd());
+            if(shift==null && checkShift(hairdresser.getShift())){
+                shiftRepository.save(hairdresser.getShift());
+            }
+            return haidresserRepository.save(hairdresser);
         }
-        hairdresser.setShift(shift);
-        return haidresserRepository.save(hairdresser);
+        return null;
     }
+
+    public Hairdresser upgradeUser(final UpgradeHairdresserDTO upgradeHairdresserDTO){
+        User user = upgradeUserToHairdresser(upgradeHairdresserDTO.getUsername());
+        if(user!=null){
+            Hairdresser hairdresser = new Hairdresser();
+            hairdresser.setUser(user);
+            Shift shift = shiftService.saveShift(LocalTime.parse(upgradeHairdresserDTO.getShiftStart()),
+                    LocalTime.parse(upgradeHairdresserDTO.getShiftEnd()));
+            if(shift!=null){
+                hairdresser.setShift(shift);
+                return haidresserRepository.save(hairdresser);
+            }
+        }
+        return null;
+    }
+
+    public User upgradeUserToHairdresser(final String username){
+        User user = userRepository.findByUsername(username);
+        if(user!=null){
+            user.setRole(AuthRole.HAIRDRESSER);
+            return userRepository.save(user);
+        }
+        return null;
+    }
+
+    public boolean isUserAHairdresser(final String username){
+        User user = userRepository.findByUsername(username);
+        return haidresserRepository.findByUser(user)!=null;
+    }
+
+    private boolean checkNotNull(final Hairdresser hairdresser){
+        return hairdresser.getUser()!=null && hairdresser.getUser().checkNotNull()
+                && hairdresser.getUser().checkPassword() && hairdresser.getShift()!=null;
+    }
+
+    private boolean checkShift(final Shift shift){
+        return shift.getShiftStart()!=null && shift.getShiftEnd()!=null;
+    }
+
+
 }
