@@ -81,7 +81,7 @@ public class UserService {
         return existingUser == null;
     }
 
-    private AuthenticatedUser getAuthLoggedUser() {
+    public AuthenticatedUser getAuthLoggedUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return principal instanceof AuthenticatedUser ? (AuthenticatedUser) principal : null;
     }

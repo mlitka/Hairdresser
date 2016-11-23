@@ -1,6 +1,7 @@
 package com.litkowska.martyna.hairdresser.app.controller;
 
 import com.litkowska.martyna.hairdresser.app.dto.VisitDTO;
+import com.litkowska.martyna.hairdresser.app.dto.VisitEventDTO;
 import com.litkowska.martyna.hairdresser.app.dto.VisitProposalDTO;
 import com.litkowska.martyna.hairdresser.app.model.Client;
 import com.litkowska.martyna.hairdresser.app.model.User;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
  * Created by Martyna on 21.09.2016.
  */
 @RestController
+@CrossOrigin
 public class VisitController {
     @Autowired
     private VisitService visitService;
@@ -36,22 +38,23 @@ public class VisitController {
     @Autowired
     private ClientService clientService;
 
-    @RequestMapping(value = "/visits", method = RequestMethod.GET)
-    @CrossOrigin("*")
+    @RequestMapping(value = "/auth/visits", method = RequestMethod.GET)
+//    @CrossOrigin("*")
     public ResponseEntity<?> getAllVisits() {
         try {
             List<Visit> visits = (List<Visit>) visitService.findAll();
             if (visits.size() == 0) {
                 return new ResponseEntity<>("no visits found in database", HttpStatus.NOT_FOUND);
             }
-            return new ResponseEntity<>(visits, HttpStatus.OK);
+            List<VisitEventDTO> events = visits.stream().map(visit -> new VisitEventDTO(visit)).collect(Collectors.toList());
+            return new ResponseEntity<>(events, HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
-    @RequestMapping(value = "/visits/{userId}", method = RequestMethod.GET)
-    @CrossOrigin("*")
+    @RequestMapping(value = "/auth/visits/{userId}", method = RequestMethod.GET)
+//    @CrossOrigin("*")
     public ResponseEntity<?> getAllVisits(@PathVariable("userId") final long userId) {
         try {
             Client client = clientService.findOne(userId);
@@ -62,28 +65,30 @@ public class VisitController {
             if (visits.size() == 0) {
                 return new ResponseEntity<>("no visits found in database", HttpStatus.NOT_FOUND);
             }
-            return new ResponseEntity<>(visits, HttpStatus.OK);
+            List<VisitEventDTO> events = visits.stream().map(visit -> new VisitEventDTO(visit)).collect(Collectors.toList());
+            return new ResponseEntity<>(events, HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
-    @RequestMapping(value = "/visits/{hairdresser}", method = RequestMethod.GET)
-    @CrossOrigin("*")
+    @RequestMapping(value = "/auth/visits/{hairdresser}", method = RequestMethod.GET)
+//    @CrossOrigin("*")
     public ResponseEntity<?> getAllHaidresserVisits(@PathVariable("hairdresser") long hairdresserId) {
         try {
             List<Visit> visits = (List<Visit>) visitService.findVisitsByHairdresser(hairdresserId);
             if (visits.size() == 0) {
                 return new ResponseEntity<>("no visits for hairdresser found in database", HttpStatus.NOT_FOUND);
             }
-            return new ResponseEntity<>(visits, HttpStatus.OK);
+            List<VisitEventDTO> events = visits.stream().map(visit -> new VisitEventDTO(visit)).collect(Collectors.toList());
+            return new ResponseEntity<>(events, HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
-    @RequestMapping(value = "/visits/{hairdresser}/available/{service}", method = RequestMethod.GET)
-    @CrossOrigin("*")
+    @RequestMapping(value = "/rest/visits/{hairdresser}/available/{service}", method = RequestMethod.GET)
+//    @CrossOrigin("*")
     public ResponseEntity<?> getAllAvailableVisits(
             @PathVariable("hairdresser") long hairdresserId,
             @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
@@ -108,8 +113,8 @@ public class VisitController {
         }
     }
 
-    @RequestMapping(value = "/visits/reserve", method = RequestMethod.POST)
-    @CrossOrigin("*")
+    @RequestMapping(value = "/rest/visits/reserve", method = RequestMethod.POST)
+//    @CrossOrigin("*")
     public ResponseEntity<?> getAllAvailableVisits(final @RequestBody VisitDTO visitDTO) {
         try {
             Visit savedVisit = visitService.reserveVisit(visitDTO);
@@ -124,8 +129,8 @@ public class VisitController {
         }
     }
 
-    @RequestMapping(value = "visits/cancel/{visitId}", method = RequestMethod.DELETE)
-    @CrossOrigin("*")
+    @RequestMapping(value = "/auth/visits/cancel/{visitId}", method = RequestMethod.DELETE)
+//    @CrossOrigin("*")
     public ResponseEntity<?> cancelVisit(@PathVariable("visitId") final long visitId) {
         try {
             User user = userService.getCurrentLoggedUser();
@@ -133,9 +138,14 @@ public class VisitController {
                     || checkHairdresserCancel(user, visitId)) {
                 Visit visit = visitService.findOne(visitId);
                 emailSender.setVisit(visit);
-                visitService.cancelVisit(visitId);
-                emailSender.sendEmailCancelReservation();
-                return new ResponseEntity<>("the visit: " + visitId + " has been canceled", HttpStatus.OK);
+                if (visitService.checkIfCanCancel(visit)) {
+                    if (visitService.cancelVisit(visitId)) {
+                        emailSender.sendEmailCancelReservation();
+                        return new ResponseEntity<>("the visit: " + visitId + " has been canceled", HttpStatus.OK);
+                    }
+                } else {
+                    return new ResponseEntity<>("the visit: " + visitId + " cant be canceled in less than 24 hours before", HttpStatus.BAD_REQUEST);
+                }
 
             }
             return new ResponseEntity<>("could not cancel visit: " + visitId, HttpStatus.BAD_REQUEST);

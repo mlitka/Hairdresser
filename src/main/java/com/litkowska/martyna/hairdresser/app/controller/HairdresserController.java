@@ -3,7 +3,6 @@ package com.litkowska.martyna.hairdresser.app.controller;
 import com.litkowska.martyna.hairdresser.app.dto.HairdresserDTO;
 import com.litkowska.martyna.hairdresser.app.model.Hairdresser;
 import com.litkowska.martyna.hairdresser.app.model.User;
-import com.litkowska.martyna.hairdresser.app.repository.UpgradeHairdresserDTO;
 import com.litkowska.martyna.hairdresser.app.security.models.AuthRole;
 import com.litkowska.martyna.hairdresser.app.service.HairdresserService;
 import com.litkowska.martyna.hairdresser.app.service.UserService;
@@ -19,6 +18,7 @@ import java.util.stream.Collectors;
  * Created by Martyna on 21.09.2016.
  */
 @RestController
+@CrossOrigin
 public class HairdresserController {
     @Autowired
     private HairdresserService hairdresserService;
@@ -26,10 +26,10 @@ public class HairdresserController {
     private UserService userService;
 
     @RequestMapping(value = "/rest/hairdressers", method = RequestMethod.GET)
-    @CrossOrigin("*")
-    public ResponseEntity<?> getAllHairdressers(){
+//    @CrossOrigin("*")
+    public ResponseEntity<?> getAllHairdressers() {
         List<Hairdresser> hairdressers = (List<Hairdresser>) hairdresserService.findAll();
-        if(hairdressers.size()==0){
+        if (hairdressers.size() == 0) {
             return new ResponseEntity<>("no hairdressers found in database", HttpStatus.NOT_FOUND);
         }
         List<HairdresserDTO> hairdressersDTO = hairdressers.stream()
@@ -37,37 +37,38 @@ public class HairdresserController {
         return new ResponseEntity<>(hairdressersDTO, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/hairdresser", method = RequestMethod.POST)
-    @CrossOrigin("*")
-    public ResponseEntity<?> saveHaidresser(final @RequestBody Hairdresser hairdresser){
-        try{
+    @RequestMapping(value = "/hairdressers", method = RequestMethod.POST)
+//    @CrossOrigin("*")
+    public ResponseEntity<?> saveHaidresser(final @RequestBody Hairdresser hairdresser) {
+        try {
             Hairdresser savedHairdresser = hairdresserService.saveNewHairdresser(hairdresser);
-            if(savedHairdresser!=null){
+            if (savedHairdresser != null) {
                 return new ResponseEntity<>(savedHairdresser, HttpStatus.CREATED);
             }
             return new ResponseEntity<>("could not save hairdresser", HttpStatus.BAD_REQUEST);
-        }catch (RuntimeException e){
+        } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
     /**
      * this method gves an opportunity to upgrade user account into hairdresser
-     * @param upgradeHairdresserDTO
+     *
+     * @param
      * @return
      */
-    @RequestMapping(value = "/hairdresser/upgrade", method = RequestMethod.POST)
-    @CrossOrigin("*")
-    public ResponseEntity<?> addHaidresserUsername(@RequestBody UpgradeHairdresserDTO upgradeHairdresserDTO){
-        try{
+    @RequestMapping(value = "/auth/hairdressers/upgrade", method = RequestMethod.POST)
+//    @CrossOrigin("*")
+    public ResponseEntity<?> addHaidresserUsername(@RequestBody String username) {
+        try {
             User user = userService.getCurrentLoggedUser();
-            if(user.getRole()== AuthRole.ADMIN
-                    && !hairdresserService.isUserAHairdresser(upgradeHairdresserDTO.getUsername())){
-                Hairdresser hairdresser = hairdresserService.upgradeUser(upgradeHairdresserDTO);
+            if (user.getRole() == AuthRole.ADMIN
+                    && !hairdresserService.isUserAHairdresser(username)) {
+                Hairdresser hairdresser = hairdresserService.upgradeUser(username);
                 return new ResponseEntity<>(hairdresser, HttpStatus.CREATED);
             }
-            return new ResponseEntity<>("could not upgrade user: "+upgradeHairdresserDTO.getUsername(), HttpStatus.BAD_REQUEST);
-        }catch (RuntimeException e){
+            return new ResponseEntity<>("could not upgrade user: " + username, HttpStatus.BAD_REQUEST);
+        } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }

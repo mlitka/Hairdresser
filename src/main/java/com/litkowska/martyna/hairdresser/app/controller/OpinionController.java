@@ -18,6 +18,7 @@ import java.util.List;
  * Created by Martyna on 19.11.2016.
  */
 @RestController
+@CrossOrigin
 public class OpinionController {
 
     @Autowired
@@ -25,8 +26,8 @@ public class OpinionController {
     @Autowired
     private UserService userService;
 
-    @RequestMapping(value = "/opinions", method = RequestMethod.GET)
-    @CrossOrigin("*")
+    @RequestMapping(value = "/auth/opinions", method = RequestMethod.GET)
+//    @CrossOrigin
     public ResponseEntity<?> getAllOpinions(){
         try{
             List<Opinion> opinionList = (List<Opinion>) opinionService.getAllOpinions();
@@ -39,8 +40,8 @@ public class OpinionController {
         }
     }
 
-    @RequestMapping(value = "/opinions/user/{clientId}", method = RequestMethod.GET)
-    @CrossOrigin("*")
+    @RequestMapping(value = "/auth/opinions/user/{clientId}", method = RequestMethod.GET)
+//    @CrossOrigin("*")
     public ResponseEntity<?> getAllClientOpinions(@PathVariable("clientId") final long clientId){
         try{
             List<Opinion> opinionList = (List<Opinion>) opinionService.getAllClientsOpinions(clientId);
@@ -58,7 +59,7 @@ public class OpinionController {
      * @return
      */
     @RequestMapping(value = "/rest/opinions/{count}", method = RequestMethod.GET)
-    @CrossOrigin("*")
+//    @CrossOrigin("*")
     public ResponseEntity<?> getAllOpinionsCount(@PathVariable("count") final int count){
         try{
             List<Opinion> opinionList = (List<Opinion>) opinionService.getAllOpinions();
@@ -72,8 +73,8 @@ public class OpinionController {
         }
     }
 
-    @RequestMapping(value = "/opinion/add", method = RequestMethod.POST)
-    @CrossOrigin("*")
+    @RequestMapping(value = "/auth/opinion/add", method = RequestMethod.POST)
+//    @CrossOrigin("*")
     public ResponseEntity<?> addOpinion(@RequestBody OpinionDTO opinionDTO){
         try{
             Opinion opinion = opinionService.save(opinionDTO);
@@ -86,8 +87,8 @@ public class OpinionController {
         }
     }
 
-    @RequestMapping(value = "/opinion/delete/{opinionId}", method = RequestMethod.POST)
-    @CrossOrigin("*")
+    @RequestMapping(value = "/auth/opinion/delete/{opinionId}", method = RequestMethod.POST)
+//    @CrossOrigin("*")
     public ResponseEntity<?> deleteOpinion(@PathVariable("opinionId") final long opinionId){
         try{
             User user = userService.getCurrentLoggedUser();

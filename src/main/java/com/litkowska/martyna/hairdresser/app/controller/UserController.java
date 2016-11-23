@@ -1,6 +1,8 @@
 package com.litkowska.martyna.hairdresser.app.controller;
 
+import com.litkowska.martyna.hairdresser.app.dto.UserDTO;
 import com.litkowska.martyna.hairdresser.app.model.User;
+import com.litkowska.martyna.hairdresser.app.security.models.AuthenticatedUser;
 import com.litkowska.martyna.hairdresser.app.security.models.JwtUser;
 import com.litkowska.martyna.hairdresser.app.security.utilities.JwtToken;
 import com.litkowska.martyna.hairdresser.app.service.UserService;
@@ -19,6 +21,7 @@ import java.util.List;
  * Created by Martyna on 21.09.2016.
  */
 @RestController
+@CrossOrigin
 public class UserController {
 
     @Value("${com.litkowska.martyna.hairdresser.salt}")
@@ -34,23 +37,38 @@ public class UserController {
 //    private StandardPasswordEncoder encoder = new StandardPasswordEncoder(salt);
 
     @RequestMapping(value = "/users", method = RequestMethod.GET)
-    @CrossOrigin("*")
+//    @CrossOrigin
     public ResponseEntity<?> getAllClients() {
         List<User> clients = (List<User>) userService.findAll();
         return new ResponseEntity<>(clients, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/user/logged", method = RequestMethod.GET)
-    public ResponseEntity<?> getLoggedUser() {
-        User user = userService.getCurrentLoggedUser();
+    @RequestMapping(value = "/auth/users/check/{username}", method = RequestMethod.GET)
+//    @CrossOrigin
+    public ResponseEntity<?> checkUser(@PathVariable("username") String username) {
+        User user = userService.findByUsername(username);
         if (user != null) {
-            return new ResponseEntity<>(user, HttpStatus.OK);
+            return new ResponseEntity<>(true, HttpStatus.OK);
+
+        }
+        return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
+    }
+
+
+    @RequestMapping(value = "/auth/user/logged", method = RequestMethod.GET)
+//    @CrossOrigin
+    public ResponseEntity<?> getLoggedUser() {
+        AuthenticatedUser authUser = userService.getAuthLoggedUser();
+        if (authUser != null) {
+            User user = userService.findByUsername(authUser.getUsername());
+            UserDTO userDTO = new UserDTO(user);
+            return new ResponseEntity<>(userDTO, HttpStatus.OK);
         }
         return new ResponseEntity<>("no user logged", HttpStatus.NOT_FOUND);
     }
 
     @RequestMapping(value = "/user/register", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    @CrossOrigin("*")
+//    @CrossOrigin
     public ResponseEntity<?> createUser(@RequestBody final User user) {
         try {
             if (user.checkNotNull() && user.checkPassword()) {
@@ -68,7 +86,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/user/login", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    @CrossOrigin("*")
+//    @CrossOrigin
     public ResponseEntity<?> loginUser(@RequestBody final User user) {
         try {
             if (userService.checkLoginAttributes(user.getUsername(), user.getPassword())) {
@@ -88,13 +106,13 @@ public class UserController {
     }
 
     @RequestMapping(value = "/user/logout", method = RequestMethod.GET)
-    @CrossOrigin("*")
-    public ResponseEntity<?> logoutUser(){
+//    @CrossOrigin("*")
+    public ResponseEntity<?> logoutUser() {
         try {
             System.out.println("logging out");
             SecurityContextHolder.clearContext();
             return new ResponseEntity<>("logged out user", HttpStatus.OK);
-        }catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }

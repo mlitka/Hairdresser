@@ -34,7 +34,7 @@ public class VisitService {
         return visitRepository.findAll();
     }
 
-    public Visit findOne(final long visitId){
+    public Visit findOne(final long visitId) {
         return visitRepository.findOne(visitId);
     }
 
@@ -119,26 +119,34 @@ public class VisitService {
     }
 
     @Transactional
-    public void cancelVisit(final long visitId){
+    public boolean cancelVisit(final long visitId) {
         Visit visit = visitRepository.findOne(visitId);
-        if(visit!=null) {
+        if (visit != null) {
             Client client = visit.getClient();
             client.getVisits().remove(visit);
             clientRepository.save(client);
             visitRepository.delete(visit);
+            return true;
         }
+        return false;
+    }
+
+    public boolean checkIfCanCancel(final Visit visit) {
+        LocalDateTime localDateTime = LocalDateTime.of(visit.getDate(), visit.getTime());
+        return localDateTime.minusHours(24).isBefore(LocalDateTime.now());
     }
 
     /**
      * Client can cancel reservation max 24 hours before the visit
+     *
      * @param visitId
      * @param clientId
      * @return
      */
-    public boolean checkIfClientCanCancel(final long visitId, final long clientId){
+    public boolean checkIfClientCanCancel(final long visitId, final long clientId) {
         Visit visit = visitRepository.findOne(visitId);
-        if(visit!=null && visit.getClient().getId()==clientId){
-            if(checkTimeOfCanceling(visit)){
+        if (visit != null && visit.getClient().getId() == clientId) {
+            if (checkTimeOfCanceling(visit)) {
                 cancelVisit(visitId);
                 return true;
             }
@@ -146,14 +154,14 @@ public class VisitService {
         return false;
     }
 
-    private boolean checkTimeOfCanceling(final Visit visit){
+    private boolean checkTimeOfCanceling(final Visit visit) {
         return LocalDateTime.of(visit.getDate(), visit.getTime()).minusHours(24).isBefore(LocalDateTime.now());
     }
 
-    public boolean checkIfHairdresserCanCancel(final long visitId, final long hairdresserId){
+    public boolean checkIfHairdresserCanCancel(final long visitId, final long hairdresserId) {
         Visit visit = visitRepository.findOne(visitId);
-        if(visit!=null && visit.getHairdresser().getId()==hairdresserId){
-            if(checkTimeOfCanceling(visit)){
+        if (visit != null && visit.getHairdresser().getId() == hairdresserId) {
+            if (checkTimeOfCanceling(visit)) {
                 cancelVisit(visitId);
                 return true;
             }

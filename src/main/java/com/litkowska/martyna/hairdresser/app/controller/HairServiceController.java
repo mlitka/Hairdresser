@@ -18,30 +18,31 @@ import java.util.stream.Collectors;
  * Created by Martyna on 21.09.2016.
  */
 @RestController
+@CrossOrigin
 public class HairServiceController {
     @Autowired
     private HairServiceService hairServiceService;
     @Autowired
     private UserService userService;
 
-    @RequestMapping(value = "/services", method = RequestMethod.GET)
-    @CrossOrigin("*")
+    @RequestMapping(value = "/auth/services", method = RequestMethod.GET)
+//    @CrossOrigin
     public ResponseEntity<?> getAllHairServices(){
         try {
             List<HairService> hairServices = (List<HairService>) hairServiceService.findAll();
             if(hairServices.size()==0){
                 return new ResponseEntity<>("no hair services found in database", HttpStatus.NOT_FOUND);
             }
-            List<HairServiceDTO> hairdresserDTOs = hairServices.stream()
+            List<HairServiceDTO> hairServiceDTOs = hairServices.stream()
                     .map(hairService -> new HairServiceDTO(hairService)).collect(Collectors.toList());
-            return new ResponseEntity<>(hairdresserDTOs, HttpStatus.OK);
+            return new ResponseEntity<>(hairServiceDTOs, HttpStatus.OK);
         }catch (RuntimeException e){
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
     @RequestMapping(value = "/rest/services/available", method = RequestMethod.GET)
-    @CrossOrigin("*")
+//    @CrossOrigin("*")
     public ResponseEntity<?> getAllNotHiddenHairServices(){
         try {
             List<HairService> availableHairServices = (List<HairService>) hairServiceService.findAllNotHidden();
@@ -56,7 +57,7 @@ public class HairServiceController {
         }
     }
 
-    @RequestMapping(value = "/services", method = RequestMethod.POST)
+    @RequestMapping(value = "/auth/services", method = RequestMethod.POST)
     public ResponseEntity<?> addHairService(@RequestBody final HairServiceDTO hairServiceDTO){
         try{
             User user = userService.getCurrentLoggedUser();
@@ -70,7 +71,7 @@ public class HairServiceController {
         }
     }
 
-    @RequestMapping(value = "/services/hide/{hairServiceId}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/auth/services/hide/{hairServiceId}", method = RequestMethod.PUT)
     public ResponseEntity<?> hideHairService(@PathVariable("hairServiceId") final long hairServiceId){
         try{
             User user = userService.getCurrentLoggedUser();
@@ -84,7 +85,7 @@ public class HairServiceController {
         }
     }
 
-    @RequestMapping(value = "/services/show/{hairServiceId}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/auth/services/show/{hairServiceId}", method = RequestMethod.PUT)
     public ResponseEntity<?> showHairService(@PathVariable("hairServiceId") final long hairServiceId){
         try{
             User user = userService.getCurrentLoggedUser();

@@ -3,9 +3,9 @@ package com.litkowska.martyna.hairdresser.app.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -52,19 +52,21 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return authenticationTokenFilter;
     }
 
-
     @Override
     protected void configure(final HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 // we don't need CSRF because our token is invulnerable
+//                .cors().disable()
                 .csrf().disable()
                 // All urls must be authenticated (filter for token always fires (/**)
                 .authorizeRequests()
+                .antMatchers(HttpMethod.OPTIONS,"/**").permitAll()
                 .antMatchers("/rest/**", "/user/**").permitAll()
-//                .antMatchers("/rest/refresh").authenticated()
-//                .antMatchers("/rest/**").authenticated()
+//                .antMatchers("/auth/**").permitAll()
+//                .antMatchers("/rest/**").authenticat ed()
                 .anyRequest().authenticated()
                 .and()
+                .httpBasic().and()
                 // Call our errorHandler if authentication/authorisation fails
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler)
                 .and()
@@ -96,13 +98,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //                        .antMatchers("/visit/reserve").access("hasAnyRole('ADMIN','USER')").anyRequest().authenticated()
 //                    .anyRequest().permitAll()
 //                .and().csrf().disable();//.addFilterBefore(new StatelessCSRFFilter(), CsrfFilter.class);
-    }
-
-    @Autowired
-    public void configure(final AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication().withUser("admin").password("admin").roles("ADMIN");
-        auth.inMemoryAuthentication().withUser("hair").password("hair").roles("HAIDRESSER");
-        auth.inMemoryAuthentication().withUser("user").password("user").roles("USER");
     }
 
 }

@@ -11,7 +11,7 @@ public class HairService {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
-    @Column
+    @Column(unique = true)
     @NotNull
     private String name;
     @Column
@@ -27,7 +27,7 @@ public class HairService {
     private boolean isHidden;
 
     public HairService() {
-        isHidden = false;
+        isHidden = true;
     }
 
     public long getId() {

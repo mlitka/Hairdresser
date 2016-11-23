@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
  */
 @Entity
 @Table(name = "Users")
-public class User{
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
@@ -115,13 +115,21 @@ public class User{
         return username;
     }
 
-    public boolean checkNotNull(){
-        return email!=null && !email.isEmpty()
-                && lastName!=null && !lastName.isEmpty()
-                && firstName!=null && !firstName.isEmpty();
+    public boolean checkNotNull() {
+        return email != null && !email.isEmpty()
+                && lastName != null && !lastName.isEmpty()
+                && firstName != null && !firstName.isEmpty();
     }
 
-    public boolean checkPassword(){
-        return password!=null && !password.isEmpty();
+    public boolean checkPassword() {
+        return password != null && !password.isEmpty();
+    }
+
+    public String getFirstAndLastName() {
+        return this.firstName + " " + this.lastName;
+    }
+
+    public String getInfo(){
+        return this.getFirstAndLastName() + "\n" + this.email + "\n" + this.phoneNo;
     }
 }

@@ -5,7 +5,6 @@ import com.litkowska.martyna.hairdresser.app.model.Shift;
 import com.litkowska.martyna.hairdresser.app.model.User;
 import com.litkowska.martyna.hairdresser.app.repository.HaidresserRepository;
 import com.litkowska.martyna.hairdresser.app.repository.ShiftRepository;
-import com.litkowska.martyna.hairdresser.app.repository.UpgradeHairdresserDTO;
 import com.litkowska.martyna.hairdresser.app.repository.UserRepository;
 import com.litkowska.martyna.hairdresser.app.security.models.AuthRole;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,13 +48,13 @@ public class HairdresserService {
         return null;
     }
 
-    public Hairdresser upgradeUser(final UpgradeHairdresserDTO upgradeHairdresserDTO){
-        User user = upgradeUserToHairdresser(upgradeHairdresserDTO.getUsername());
+    public Hairdresser upgradeUser(final String username){
+        User user = upgradeUserToHairdresser(username);
         if(user!=null){
             Hairdresser hairdresser = new Hairdresser();
             hairdresser.setUser(user);
-            Shift shift = shiftService.saveShift(LocalTime.parse(upgradeHairdresserDTO.getShiftStart()),
-                    LocalTime.parse(upgradeHairdresserDTO.getShiftEnd()));
+            Shift shift = shiftService.saveShift(LocalTime.parse("8:00"),
+                    LocalTime.parse("18:00"));
             if(shift!=null){
                 hairdresser.setShift(shift);
                 return haidresserRepository.save(hairdresser);
