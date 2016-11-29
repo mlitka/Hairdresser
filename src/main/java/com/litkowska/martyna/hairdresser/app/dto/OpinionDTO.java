@@ -1,5 +1,7 @@
 package com.litkowska.martyna.hairdresser.app.dto;
 
+import com.litkowska.martyna.hairdresser.app.model.Opinion;
+
 import java.time.LocalDateTime;
 
 /**
@@ -7,10 +9,24 @@ import java.time.LocalDateTime;
  */
 public class OpinionDTO {
     private long opinionId;
-    private long clientID = -1;
+    private long userId = -1;
     private String text;
     private int rate = -1;
     private LocalDateTime dateTime;
+    private String author;
+
+    public OpinionDTO(){
+
+    }
+
+    public OpinionDTO(final Opinion opinion){
+        this.opinionId = opinion.getId();
+        this.userId = opinion.getClient().getUser().getId();
+        this.text = opinion.getOpinionText();
+        this.rate = opinion.getRate();
+        this.dateTime = opinion.getDateTime();
+        this.author = opinion.getClient().getUser().getFirstAndLastName();
+    }
 
     public long getOpinionId() {
         return opinionId;
@@ -20,12 +36,12 @@ public class OpinionDTO {
         this.opinionId = opinionId;
     }
 
-    public long getClientID() {
-        return clientID;
+    public long getUserId() {
+        return userId;
     }
 
-    public void setClientID(long clientID) {
-        this.clientID = clientID;
+    public void setUserId(long userId) {
+        this.userId = userId;
     }
 
     public String getText() {
@@ -50,5 +66,13 @@ public class OpinionDTO {
 
     public void setDateTime(LocalDateTime dateTime) {
         this.dateTime = dateTime;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
     }
 }

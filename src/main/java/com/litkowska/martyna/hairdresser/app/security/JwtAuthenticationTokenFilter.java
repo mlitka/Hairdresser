@@ -11,7 +11,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Enumeration;
 
 public class JwtAuthenticationTokenFilter extends AbstractAuthenticationProcessingFilter {
 
@@ -25,14 +24,19 @@ public class JwtAuthenticationTokenFilter extends AbstractAuthenticationProcessi
             throws AuthenticationException, IOException, ServletException {
 
 //
-        Enumeration headerNames = httpServletRequest.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String key = (String) headerNames.nextElement();
-            String value = httpServletRequest.getHeader(key);
-            System.out.println(key +" : "+value);
+//        Enumeration headerNames = httpServletRequest.getHeaderNames();
+//        while (headerNames.hasMoreElements()) {
+//            String key = (String) headerNames.nextElement();
+//            String value = httpServletRequest.getHeader(key);
+//            System.out.println(key +" : "+value);
+//        }
+        String header = httpServletRequest.getHeader("Authorization");
+//        System.out.println("\n\nheader!\n"+header);
+
+        if (httpServletRequest.getHeader("Access-Control-Request-Method") != null
+                && "OPTIONS".equals(httpServletRequest.getMethod())) {
+            return null;
         }
-        String header = httpServletRequest.getHeader("authorization");
-        System.out.println("\n\nheader!\n"+header);
 
         if (header == null || !header.startsWith("Bearer ")){
             throw new JwtMissingTokenException("No JWT token found in request header");

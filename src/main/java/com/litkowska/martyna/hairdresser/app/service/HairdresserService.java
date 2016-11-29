@@ -35,12 +35,12 @@ public class HairdresserService {
 
     @Transactional
     public Hairdresser saveNewHairdresser(final Hairdresser hairdresser) {
-        if(checkNotNull(hairdresser)){
+        if (checkNotNull(hairdresser)) {
             hairdresser.getUser().setRole(AuthRole.HAIRDRESSER);
-            userService.save(hairdresser.getUser());
+            haidresserRepository.save(hairdresser);
             Shift shift = shiftRepository.findByShiftStartAndShiftEnd(hairdresser.getShift().getShiftStart(),
                     hairdresser.getShift().getShiftEnd());
-            if(shift==null && checkShift(hairdresser.getShift())){
+            if (shift == null && checkShift(hairdresser.getShift())) {
                 shiftRepository.save(hairdresser.getShift());
             }
             return haidresserRepository.save(hairdresser);
@@ -48,14 +48,15 @@ public class HairdresserService {
         return null;
     }
 
-    public Hairdresser upgradeUser(final String username){
+    @Transactional
+    public Hairdresser upgradeUser(final String username) {
         User user = upgradeUserToHairdresser(username);
-        if(user!=null){
+        if (user != null) {
             Hairdresser hairdresser = new Hairdresser();
             hairdresser.setUser(user);
-            Shift shift = shiftService.saveShift(LocalTime.parse("8:00"),
-                    LocalTime.parse("18:00"));
-            if(shift!=null){
+            Shift shift = shiftService.saveShift(LocalTime.of(8,0),
+                    LocalTime.of(18,0));
+            if (shift != null) {
                 hairdresser.setShift(shift);
                 return haidresserRepository.save(hairdresser);
             }
@@ -63,27 +64,29 @@ public class HairdresserService {
         return null;
     }
 
-    public User upgradeUserToHairdresser(final String username){
+    public User upgradeUserToHairdresser(final String username) {
         User user = userRepository.findByUsername(username);
-        if(user!=null){
+        if (user != null) {
             user.setRole(AuthRole.HAIRDRESSER);
             return userRepository.save(user);
         }
         return null;
     }
 
-    public boolean isUserAHairdresser(final String username){
+    public boolean isUserAHairdresser(final String username) {
         User user = userRepository.findByUsername(username);
-        return haidresserRepository.findByUser(user)!=null;
+        System.out.println("isUserHaidr");
+        System.out.println(user);
+        return haidresserRepository.findByUser(user) != null;
     }
 
-    private boolean checkNotNull(final Hairdresser hairdresser){
-        return hairdresser.getUser()!=null && hairdresser.getUser().checkNotNull()
-                && hairdresser.getUser().checkPassword() && hairdresser.getShift()!=null;
+    private boolean checkNotNull(final Hairdresser hairdresser) {
+        return hairdresser.getUser().checkNotNull()
+                && hairdresser.getUser().checkPassword() && hairdresser.getShift() != null;
     }
 
-    private boolean checkShift(final Shift shift){
-        return shift.getShiftStart()!=null && shift.getShiftEnd()!=null;
+    private boolean checkShift(final Shift shift) {
+        return shift.getShiftStart() != null && shift.getShiftEnd() != null;
     }
 
 

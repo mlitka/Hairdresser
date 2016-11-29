@@ -84,7 +84,7 @@ public class Visit implements Comparable<Visit>{
                 ", time=" + time +
                 ", date=" + date +
                 ", hairService=" + hairService +
-                ", client=" + client.getUser().getEmail() +
+                ", client=" + client.getClientId() +
                 '}';
     }
 }

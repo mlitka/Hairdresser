@@ -10,6 +10,7 @@ import javax.validation.constraints.NotNull;
  * Created by Martyna on 26.09.2016.
  */
 @Entity
+@Inheritance(strategy=InheritanceType.JOINED)
 @Table(name = "Users")
 public class User {
     @Id

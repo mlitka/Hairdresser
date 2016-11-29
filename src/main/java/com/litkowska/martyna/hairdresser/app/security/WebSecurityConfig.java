@@ -4,8 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -13,9 +11,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import java.util.Arrays;
 
 /**
  * Created by Martyna on 12.11.2016.
@@ -36,14 +33,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    @Override
-    public AuthenticationManager authenticationManager() throws Exception {
-
-        return new ProviderManager(Arrays.asList(authenticationProvider));
-
-    }
-
+//    @Bean
+//    @Override
+//    public AuthenticationManager authenticationManager() throws Exception {
+//
+//        return new ProviderManager(Arrays.asList(authenticationProvider));
+//
+//    }
+//
     @Bean
     public JwtAuthenticationTokenFilter authenticationTokenFilterBean() throws Exception {
         JwtAuthenticationTokenFilter authenticationTokenFilter = new JwtAuthenticationTokenFilter();
@@ -52,15 +49,28 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return authenticationTokenFilter;
     }
 
+//    @Bean
+//    public FilterRegistrationBean corsFilter() {
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        CorsConfiguration config = new CorsConfiguration();
+//        config.setAllowCredentials(true);
+//        config.addAllowedOrigin("*");
+//        config.addAllowedHeader("*");
+//        config.addAllowedMethod("*");
+//        source.registerCorsConfiguration("/**", config);
+//        FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
+//        bean.setOrder(0);
+//        return bean;
+//    }
+
     @Override
     protected void configure(final HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-                // we don't need CSRF because our token is invulnerable
 //                .cors().disable()
+                .addFilterBefore(new com.litkowska.martyna.hairdresser.app.security.CorsFilter(), ChannelProcessingFilter.class)
                 .csrf().disable()
-                // All urls must be authenticated (filter for token always fires (/**)
                 .authorizeRequests()
-                .antMatchers(HttpMethod.OPTIONS,"/**").permitAll()
+                .antMatchers(HttpMethod.OPTIONS,"**").permitAll()
                 .antMatchers("/rest/**", "/user/**").permitAll()
 //                .antMatchers("/auth/**").permitAll()
 //                .antMatchers("/rest/**").authenticat ed()
@@ -75,29 +85,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // Custom JWT based security filter
         httpSecurity
                 .addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
-
+//
         // disable page caching
         httpSecurity.headers().cacheControl();
 
-
-//        http
-//                    .formLogin()
-//                        .loginPage("/login")
-//                        .loginPage( "/login" )
-//                        .loginProcessingUrl( "/login" )
-//                        .successForwardUrl("/")
-//                .and()
-//                    .logout()
-//                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-//                        .logoutSuccessUrl("/")
-////                .httpBasic()
-//                .and()
-//                    .authorizeRequests()
-//                        .antMatchers("/visits/**").access("hasRole('ADMIN')").anyRequest().authenticated()
-//                        .antMatchers("/visits/{hairdresser}").access("hasRole('HAIRDRESSER')").anyRequest().authenticated()
-//                        .antMatchers("/visit/reserve").access("hasAnyRole('ADMIN','USER')").anyRequest().authenticated()
-//                    .anyRequest().permitAll()
-//                .and().csrf().disable();//.addFilterBefore(new StatelessCSRFFilter(), CsrfFilter.class);
     }
 
 }

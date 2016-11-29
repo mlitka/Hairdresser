@@ -1,11 +1,11 @@
 package com.litkowska.martyna.hairdresser.app.controller;
 
 import com.litkowska.martyna.hairdresser.app.dto.HairdresserDTO;
+import com.litkowska.martyna.hairdresser.app.dto.UserDTO;
 import com.litkowska.martyna.hairdresser.app.model.Hairdresser;
-import com.litkowska.martyna.hairdresser.app.model.User;
 import com.litkowska.martyna.hairdresser.app.security.models.AuthRole;
 import com.litkowska.martyna.hairdresser.app.service.HairdresserService;
-import com.litkowska.martyna.hairdresser.app.service.UserService;
+import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,10 +23,9 @@ public class HairdresserController {
     @Autowired
     private HairdresserService hairdresserService;
     @Autowired
-    private UserService userService;
+    private UserController userController;
 
     @RequestMapping(value = "/rest/hairdressers", method = RequestMethod.GET)
-//    @CrossOrigin("*")
     public ResponseEntity<?> getAllHairdressers() {
         List<Hairdresser> hairdressers = (List<Hairdresser>) hairdresserService.findAll();
         if (hairdressers.size() == 0) {
@@ -38,7 +37,6 @@ public class HairdresserController {
     }
 
     @RequestMapping(value = "/hairdressers", method = RequestMethod.POST)
-//    @CrossOrigin("*")
     public ResponseEntity<?> saveHaidresser(final @RequestBody Hairdresser hairdresser) {
         try {
             Hairdresser savedHairdresser = hairdresserService.saveNewHairdresser(hairdresser);
@@ -58,14 +56,19 @@ public class HairdresserController {
      * @return
      */
     @RequestMapping(value = "/auth/hairdressers/upgrade", method = RequestMethod.POST)
-//    @CrossOrigin("*")
-    public ResponseEntity<?> addHaidresserUsername(@RequestBody String username) {
+    public ResponseEntity<?> addHaidresserUsername(@RequestParam("username") String username, final HttpServletRequest request) {
         try {
-            User user = userService.getCurrentLoggedUser();
+            UserDTO user = (UserDTO) userController.getLoggedUser(request).getBody();
+            System.out.println("H contr");
+            System.out.println(username);
             if (user.getRole() == AuthRole.ADMIN
                     && !hairdresserService.isUserAHairdresser(username)) {
                 Hairdresser hairdresser = hairdresserService.upgradeUser(username);
-                return new ResponseEntity<>(hairdresser, HttpStatus.CREATED);
+                System.out.println("hairdresser upgrade");
+                System.out.println(hairdresser);
+                if (hairdresser != null) {
+                    return new ResponseEntity<>(hairdresser, HttpStatus.CREATED);
+                }
             }
             return new ResponseEntity<>("could not upgrade user: " + username, HttpStatus.BAD_REQUEST);
         } catch (RuntimeException e) {

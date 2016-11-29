@@ -20,7 +20,7 @@ import java.util.List;
 public class JwtAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
     @Autowired
-    JwtToken jwtToken;
+    private JwtToken jwtToken;
 
     @Override
     public boolean supports(Class<?> authentication){

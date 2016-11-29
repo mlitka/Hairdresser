@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 public class Hairdresser{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private long hairdresserId;
     @OneToOne
     @NotNull
     private User user;
@@ -18,12 +18,12 @@ public class Hairdresser{
     @NotNull
     private Shift shift;
 
-    public long getId() {
-        return id;
+    public long getHairdresserId() {
+        return hairdresserId;
     }
 
-    public void setId(final long id) {
-        this.id = id;
+    public void setHairdresserId(final long hairdresserId) {
+        this.hairdresserId = hairdresserId;
     }
 
     public Shift getShift() {
@@ -45,9 +45,9 @@ public class Hairdresser{
     @Override
     public String toString() {
         return "Hairdresser{" +
-                "id=" + id +
+                "hairdresserId=" + hairdresserId +
                 ", shift=" + shift +
-                ", user=" + user.getEmail() +
+//                ", user=" + user.getEmail() +
                 '}';
     }
 }

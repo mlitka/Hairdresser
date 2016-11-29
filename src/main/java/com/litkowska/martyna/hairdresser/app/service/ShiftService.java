@@ -24,6 +24,6 @@ public class ShiftService {
             shift.setShiftEnd(shiftEnd);
             return shiftRepository.save(shift);
         }
-        return null;
+        return shift;
     }
 }

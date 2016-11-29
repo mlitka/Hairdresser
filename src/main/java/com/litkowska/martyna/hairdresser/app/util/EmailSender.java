@@ -23,30 +23,34 @@ public class EmailSender {
     @Autowired
     private EmailConfiguration emailConfiguration;
 
-    private Visit visit;
-    private String emailBody;
+//    private Visit visit;
+//    private String emailBody;
 
     static Properties mailServerProperties;
     static Session getMailSession;
     static MimeMessage generateMailMessage;
 
-    public void setVisit(final Visit visit){
-        this.visit = visit;
-    }
+//    public void setVisit(){
+//        this.visit = visit;
+//        System.out.println(visit);
+//    }
 
-    public void sendEmailReservation() throws AddressException, MessagingException {
-        prepareMessageReservation();
-        generateAndSendEmail();
+    public void sendEmailReservation(final Visit visit) throws AddressException, MessagingException {
+        System.out.println("inside");
+        System.out.println(visit);
+//        String emailBody = prepareMessageReservation(visit);
+//        System.out.println(emailBody);
+        generateAndSendEmail(visit, false);
         System.out.println("\n\n ===> Your Java Program has just sent an Email successfully. Check your email..");
     }
 
-    public void sendEmailCancelReservation() throws AddressException, MessagingException {
-        prepareMessageReservationCanceled();
-        generateAndSendEmail();
+    public void sendEmailCancelReservation(final Visit visit) throws AddressException, MessagingException {
+//        String emailBody = prepareMessageReservationCanceled(visit);
+        generateAndSendEmail(visit, true);
         System.out.println("\n\n ===> Your Java Program has just sent an Email successfully. Check your email..");
     }
 
-    private void generateAndSendEmail() throws AddressException, MessagingException {
+    private void generateAndSendEmail(final Visit visit, final boolean cancel) throws AddressException, MessagingException {
 
         // Step1
         System.out.println("\n 1st ===> setup Mail Server Properties..");
@@ -63,7 +67,8 @@ public class EmailSender {
         generateMailMessage.addRecipient(Message.RecipientType.TO, new InternetAddress(visit.getClient().getUser().getEmail()));
 //        generateMailMessage.addRecipient(Message.RecipientType.CC, new InternetAddress("test2@crunchify.com"));
         generateMailMessage.setSubject("HAIR SALON VISIT");
-//        String emailBody = "Test email by EmLitka JavaMail API example. " + "<br><br> Regards, <br>M L ;)";
+        String emailBody = cancel?prepareMessageReservationCanceled(visit):prepareMessageReservation(visit);
+        System.out.println(emailBody);
         generateMailMessage.setContent(emailBody, "text/html");
         System.out.println("Mail Session has been created successfully..");
 
@@ -78,19 +83,19 @@ public class EmailSender {
         transport.close();
     }
 
-    private void prepareMessageReservation(){
-        emailBody = "Hello "+this.visit.getClient().getUser().getFirstName()+" "+this.visit.getClient().getUser().getLastName()+"!<br><br>"
-                +"You have just reserved a visit in our salon for "+this.visit.getHairService().getName()+".<br>"
-                +"Our hairdresser, "+this.visit.getHairdresser().getUser().getFirstName()+" "+this.visit.getHairdresser().getUser().getLastName()
-                +" will be waiting for you on "+this.visit.getDate()+" at "+this.visit.getTime()+"."
+    private String prepareMessageReservation(final Visit visit){
+        return "Hello "+visit.getClient().getUser().getFirstName()+" "+visit.getClient().getUser().getLastName()+"!<br><br>"
+                +"You have just reserved a visit in our salon for "+visit.getHairService().getName()+".<br>"
+                +"Our hairdresser, "+visit.getHairdresser().getUser().getFirstName()+" "+visit.getHairdresser().getUser().getLastName()
+                +" will be waiting for you on "+visit.getDate()+" at "+visit.getTime()+"."
                 + "<br><br>Best regards, <br>Hair Salon";
     }
 
-    private void prepareMessageReservationCanceled(){
-        emailBody = "Hello "+this.visit.getClient().getUser().getFirstName()+" "+this.visit.getClient().getUser().getLastName()+"!<br><br>"
-                +"Your visit in our salon for "+this.visit.getHairService().getName()
-                +" to our hairdresser "+this.visit.getHairdresser().getUser().getFirstName()+" "+this.visit.getHairdresser().getUser().getLastName()
-                +" on "+this.visit.getDate()+" at "+this.visit.getTime()+" has been canceled."
+    private String prepareMessageReservationCanceled(final Visit visit){
+        return "Hello "+visit.getClient().getUser().getFirstName()+" "+visit.getClient().getUser().getLastName()+"!<br><br>"
+                +"Your visit in our salon for "+visit.getHairService().getName()
+                +" to our hairdresser "+visit.getHairdresser().getUser().getFirstName()+" "+visit.getHairdresser().getUser().getLastName()
+                +" on "+visit.getDate()+" at "+visit.getTime()+" has been canceled."
                 + "<br><br>Best regards, <br>Hair Salon";
     }
 }

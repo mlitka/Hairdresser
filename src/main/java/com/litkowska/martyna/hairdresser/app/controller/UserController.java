@@ -2,10 +2,11 @@ package com.litkowska.martyna.hairdresser.app.controller;
 
 import com.litkowska.martyna.hairdresser.app.dto.UserDTO;
 import com.litkowska.martyna.hairdresser.app.model.User;
-import com.litkowska.martyna.hairdresser.app.security.models.AuthenticatedUser;
 import com.litkowska.martyna.hairdresser.app.security.models.JwtUser;
 import com.litkowska.martyna.hairdresser.app.security.utilities.JwtToken;
+import com.litkowska.martyna.hairdresser.app.service.ClientService;
 import com.litkowska.martyna.hairdresser.app.service.UserService;
+import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -30,23 +31,24 @@ public class UserController {
     @Autowired
     private UserService userService;
     @Autowired
+    private ClientService clientService;
+    @Autowired
     private PasswordEncoder encoder;
     @Autowired
     private JwtToken jwtToken;
 
-//    private StandardPasswordEncoder encoder = new StandardPasswordEncoder(salt);
-
     @RequestMapping(value = "/users", method = RequestMethod.GET)
-//    @CrossOrigin
     public ResponseEntity<?> getAllClients() {
         List<User> clients = (List<User>) userService.findAll();
         return new ResponseEntity<>(clients, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/auth/users/check/{username}", method = RequestMethod.GET)
-//    @CrossOrigin
-    public ResponseEntity<?> checkUser(@PathVariable("username") String username) {
+    @RequestMapping(value = "/auth/users/check", method = RequestMethod.GET)
+    public ResponseEntity<?> checkUser(@RequestParam ("username") String username) {
         User user = userService.findByUsername(username);
+        System.out.println(username);
+        System.out.println("chceking");
+        System.out.println(user);
         if (user != null) {
             return new ResponseEntity<>(true, HttpStatus.OK);
 
@@ -56,19 +58,22 @@ public class UserController {
 
 
     @RequestMapping(value = "/auth/user/logged", method = RequestMethod.GET)
-//    @CrossOrigin
-    public ResponseEntity<?> getLoggedUser() {
-        AuthenticatedUser authUser = userService.getAuthLoggedUser();
-        if (authUser != null) {
-            User user = userService.findByUsername(authUser.getUsername());
-            UserDTO userDTO = new UserDTO(user);
-            return new ResponseEntity<>(userDTO, HttpStatus.OK);
+    public ResponseEntity<?> getLoggedUser(final HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        if(token!=null) {
+            token = token.substring(7);
+            JwtUser jwtUser = jwtToken.decode(token);
+            if (jwtUser != null) {
+                User user = userService.findOne(Long.parseLong(jwtUser.getUserId()));
+                UserDTO userDTO = new UserDTO(user);
+                return new ResponseEntity<>(userDTO, HttpStatus.OK);
+            }
+            return new ResponseEntity<>("no user logged", HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>("no user logged", HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>("did not find auth token", HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping(value = "/user/register", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-//    @CrossOrigin
     public ResponseEntity<?> createUser(@RequestBody final User user) {
         try {
             if (user.checkNotNull() && user.checkPassword()) {
@@ -86,7 +91,6 @@ public class UserController {
     }
 
     @RequestMapping(value = "/user/login", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-//    @CrossOrigin
     public ResponseEntity<?> loginUser(@RequestBody final User user) {
         try {
             if (userService.checkLoginAttributes(user.getUsername(), user.getPassword())) {
@@ -106,7 +110,6 @@ public class UserController {
     }
 
     @RequestMapping(value = "/user/logout", method = RequestMethod.GET)
-//    @CrossOrigin("*")
     public ResponseEntity<?> logoutUser() {
         try {
             System.out.println("logging out");

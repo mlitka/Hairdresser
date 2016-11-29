@@ -1,5 +1,6 @@
 package com.litkowska.martyna.hairdresser.app.controller;
 
+import com.litkowska.martyna.hairdresser.app.dto.UserDTO;
 import com.litkowska.martyna.hairdresser.app.dto.VisitDTO;
 import com.litkowska.martyna.hairdresser.app.dto.VisitEventDTO;
 import com.litkowska.martyna.hairdresser.app.dto.VisitProposalDTO;
@@ -11,6 +12,7 @@ import com.litkowska.martyna.hairdresser.app.service.ClientService;
 import com.litkowska.martyna.hairdresser.app.service.UserService;
 import com.litkowska.martyna.hairdresser.app.service.VisitService;
 import com.litkowska.martyna.hairdresser.app.util.EmailSender;
+import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,14 +35,15 @@ public class VisitController {
     @Autowired
     private VisitService visitService;
     @Autowired
-    private EmailSender emailSender;
+    private ClientService clientService;
     @Autowired
     private UserService userService;
     @Autowired
-    private ClientService clientService;
+    private UserController userController;
+    @Autowired
+    private EmailSender emailSender;
 
     @RequestMapping(value = "/auth/visits", method = RequestMethod.GET)
-//    @CrossOrigin("*")
     public ResponseEntity<?> getAllVisits() {
         try {
             List<Visit> visits = (List<Visit>) visitService.findAll();
@@ -53,11 +57,29 @@ public class VisitController {
         }
     }
 
-    @RequestMapping(value = "/auth/visits/{userId}", method = RequestMethod.GET)
-//    @CrossOrigin("*")
-    public ResponseEntity<?> getAllVisits(@PathVariable("userId") final long userId) {
+//    @RequestMapping(value = "/auth/visits/{userId}", method = RequestMethod.GET)
+//    public ResponseEntity<?> getAllClientsVisits(@PathVariable("userId") final long userId) {
+//        try {
+//            Client client = clientService.findOne(userId);
+//            List<Visit> visits = new ArrayList<>();
+//            if (client != null) {
+//                visits = client.getVisits();
+//            }
+//            if (visits.size() == 0) {
+//                return new ResponseEntity<>("no visits found in database", HttpStatus.NOT_FOUND);
+//            }
+//            List<VisitEventDTO> events = visits.stream().map(visit -> new VisitEventDTO(visit)).collect(Collectors.toList());
+//            return new ResponseEntity<>(events, HttpStatus.OK);
+//        } catch (RuntimeException e) {
+//            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+//        }
+//    }
+
+    @RequestMapping(value = "/auth/visits/upcoming/{userId}", method = RequestMethod.GET)
+    public ResponseEntity<?> getClientsUpcomingVisits(@PathVariable("userId") final long userId) {
         try {
-            Client client = clientService.findOne(userId);
+            User user = userService.findOne(userId);
+            Client client = clientService.findByUser(user);
             List<Visit> visits = new ArrayList<>();
             if (client != null) {
                 visits = client.getVisits();
@@ -65,7 +87,28 @@ public class VisitController {
             if (visits.size() == 0) {
                 return new ResponseEntity<>("no visits found in database", HttpStatus.NOT_FOUND);
             }
-            List<VisitEventDTO> events = visits.stream().map(visit -> new VisitEventDTO(visit)).collect(Collectors.toList());
+            List<Visit> visitsUpcoming = visits.stream().filter(visit -> filterUpcoming(visit)).collect(Collectors.toList());
+            List<VisitEventDTO> events = visitsUpcoming.stream().map(visit -> new VisitEventDTO(visit)).collect(Collectors.toList());
+            return new ResponseEntity<>(events, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @RequestMapping(value = "/auth/visits/history/{userId}", method = RequestMethod.GET)
+    public ResponseEntity<?> getClientsVisitsHistory(@PathVariable("userId") final long userId) {
+        try {
+            User user = userService.findOne(userId);
+            Client client = clientService.findByUser(user);
+            List<Visit> visits = new ArrayList<>();
+            if (client != null) {
+                visits = client.getVisits();
+            }
+            if (visits.size() == 0) {
+                return new ResponseEntity<>("no visits found in database", HttpStatus.NOT_FOUND);
+            }
+            List<Visit> visitsHistory = visits.stream().filter(visit -> !filterUpcoming(visit)).collect(Collectors.toList());
+            List<VisitEventDTO> events = visitsHistory.stream().map(visit -> new VisitEventDTO(visit)).collect(Collectors.toList());
             return new ResponseEntity<>(events, HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -73,7 +116,6 @@ public class VisitController {
     }
 
     @RequestMapping(value = "/auth/visits/{hairdresser}", method = RequestMethod.GET)
-//    @CrossOrigin("*")
     public ResponseEntity<?> getAllHaidresserVisits(@PathVariable("hairdresser") long hairdresserId) {
         try {
             List<Visit> visits = (List<Visit>) visitService.findVisitsByHairdresser(hairdresserId);
@@ -88,15 +130,11 @@ public class VisitController {
     }
 
     @RequestMapping(value = "/rest/visits/{hairdresser}/available/{service}", method = RequestMethod.GET)
-//    @CrossOrigin("*")
     public ResponseEntity<?> getAllAvailableVisits(
             @PathVariable("hairdresser") long hairdresserId,
             @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @PathVariable("service") long hairServiceId
     ) {
-        System.out.println("\n\n" + hairdresserId);
-        System.out.println("\n\n" + date);
-        System.out.println("\n\n" + hairServiceId);
         try {
             List<Visit> availableVisits = (List<Visit>) visitService.findAvailableVisits(
                     hairdresserId,
@@ -114,14 +152,18 @@ public class VisitController {
     }
 
     @RequestMapping(value = "/rest/visits/reserve", method = RequestMethod.POST)
-//    @CrossOrigin("*")
-    public ResponseEntity<?> getAllAvailableVisits(final @RequestBody VisitDTO visitDTO) {
+    public ResponseEntity<?> postReserveVisit(final @RequestBody VisitDTO visitDTO, final HttpServletRequest request) {
         try {
+            if(visitDTO.getClient().getEmail()==null){
+                UserDTO user = (UserDTO) userController.getLoggedUser(request).getBody();
+                visitDTO.getClient().setEmail(user.getEmail());
+                visitDTO.getClient().setFirstName(user.getFirstName());
+                visitDTO.getClient().setLastName(user.getLastName());
+            }
             Visit savedVisit = visitService.reserveVisit(visitDTO);
             if (savedVisit != null) {
-                emailSender.setVisit(savedVisit);
-                emailSender.sendEmailReservation();
-                return new ResponseEntity<>(savedVisit, HttpStatus.CREATED);
+                emailSender.sendEmailReservation(savedVisit);
+                return new ResponseEntity<>("visit saved", HttpStatus.CREATED);
             }
             return new ResponseEntity<>("could not reserve visit", HttpStatus.BAD_REQUEST);
         } catch (RuntimeException | MessagingException e) {
@@ -130,17 +172,15 @@ public class VisitController {
     }
 
     @RequestMapping(value = "/auth/visits/cancel/{visitId}", method = RequestMethod.DELETE)
-//    @CrossOrigin("*")
-    public ResponseEntity<?> cancelVisit(@PathVariable("visitId") final long visitId) {
+    public ResponseEntity<?> cancelVisit(@PathVariable("visitId") final long visitId, final HttpServletRequest request) {
         try {
-            User user = userService.getCurrentLoggedUser();
+            UserDTO user = (UserDTO) userController.getLoggedUser(request).getBody();
             if (user.getRole() == AuthRole.ADMIN || checkClientCancel(user, visitId)
                     || checkHairdresserCancel(user, visitId)) {
                 Visit visit = visitService.findOne(visitId);
-                emailSender.setVisit(visit);
                 if (visitService.checkIfCanCancel(visit)) {
                     if (visitService.cancelVisit(visitId)) {
-                        emailSender.sendEmailCancelReservation();
+                        emailSender.sendEmailCancelReservation(visit);
                         return new ResponseEntity<>("the visit: " + visitId + " has been canceled", HttpStatus.OK);
                     }
                 } else {
@@ -155,15 +195,18 @@ public class VisitController {
         }
     }
 
-    private boolean checkClientCancel(final User user, final long visitId) {
+    private boolean checkClientCancel(final UserDTO user, final long visitId) {
 
         return user.getRole() == AuthRole.USER
-                && visitService.checkIfClientCanCancel(visitId, clientService.findByUser(user).getId());
+                && visitService.checkIfClientCanCancel(visitId, user.getId());
     }
 
-    private boolean checkHairdresserCancel(final User user, final long visitId) {
+    private boolean checkHairdresserCancel(final UserDTO user, final long visitId) {
 
-        return user.getRole() == AuthRole.HAIRDRESSER
-                && visitService.checkIfHairdresserCanCancel(visitId, clientService.findByUser(user).getId());
+        return visitService.checkIfHairdresserCanCancel(visitId, user.getId());
+    }
+
+    private boolean filterUpcoming(final Visit visit) {
+        return visit.getDate().isAfter(LocalDate.now()) || (visit.getDate().isEqual(LocalDate.now()) && visit.getTime().isAfter(LocalTime.now()));
     }
 }
