@@ -33,6 +33,7 @@ public class ClientService {
         Client client = clientRepository.findByUser(user);
         if (client == null) {
             client = new Client();
+            client.setUser(new User());
             client.getUser().setEmail(visitDTO.getClient().getEmail());
             client.getUser().setLastName(visitDTO.getClient().getLastName());
             client.getUser().setFirstName(visitDTO.getClient().getFirstName());
